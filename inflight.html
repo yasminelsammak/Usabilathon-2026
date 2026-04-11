@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Travel Intelligence · In-Flight Experience</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --collins-blue:    #0057A8;
+      --collins-light:   #1a8cff;
+      --collins-cyan:    #00c8e0;
+      --seat-bg:         #0a0f1e;
+      --panel-bg:        rgba(255,255,255,0.05);
+      --panel-border:    rgba(255,255,255,0.10);
+      --text-primary:    #f0f4ff;
+      --text-secondary:  rgba(240,244,255,0.55);
+      --text-muted:      rgba(240,244,255,0.35);
+      --green:           #22d98a;
+      --amber:           #f59e0b;
+      --purple:          #a78bfa;
+      --radius-sm:       8px;
+      --radius-md:       12px;
+      --radius-lg:       18px;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--seat-bg);
+      color: var(--text-primary);
+      overflow: hidden;
+    }
+
+    /* ── SCREEN FRAME ── */
+    .screen-wrap {
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      background: radial-gradient(ellipse at 50% 0%, #0d1a3a 0%, #0a0f1e 70%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle starfield */
+    .screen-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 60%, rgba(255,255,255,.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,.20) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,.12) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,.18) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,.22) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 45%, rgba(255,255,255,.14) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 24px;
+      background: rgba(0,87,168,0.25);
+      border-bottom: 1px solid rgba(0,200,224,0.2);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .status-left { display: flex; align-items: center; gap: 16px; }
+    .collins-logo {
+      display: flex; align-items: center; gap: 7px;
+    }
+    .collins-logo .diamond {
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--collins-cyan), var(--collins-blue));
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    }
+    .collins-logo .brand { font-size: 13px; font-weight: 700; letter-spacing: .06em; color: #fff; }
+    .collins-logo .sub   { font-size: 10px; color: var(--text-secondary); letter-spacing: .08em; }
+
+    .flight-badge {
+      background: rgba(0,200,224,0.12);
+      border: 1px solid rgba(0,200,224,0.3);
+      border-radius: 99px;
+      padding: 3px 12px;
+      font-size: 12px; font-weight: 600;
+      color: var(--collins-cyan);
+      letter-spacing: .05em;
+    }
+
+    .status-right { display: flex; align-items: center; gap: 20px; }
+    .sys-pill {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-secondary);
+    }
+    .sys-dot { width: 6px; height: 6px; border-radius: 50%; animation: pulse 2s infinite; }
+    .sys-dot.green  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .sys-dot.cyan   { background: var(--collins-cyan); box-shadow: 0 0 6px var(--collins-cyan); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .time-display { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: 1fr;
+      gap: 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── LEFT: MAP + FLIGHT DATA ── */
+    .left-panel {
+      display: flex; flex-direction: column;
+      padding: 20px 16px 20px 24px;
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    /* Route Header */
+    .route-header {
+      display: flex; align-items: center; gap: 0;
+      flex-shrink: 0;
+    }
+    .route-airport { text-align: center; }
+    .route-airport .iata { font-size: 36px; font-weight: 800; color: #fff; letter-spacing: -.01em; line-height: 1; }
+    .route-airport .city { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+    .route-path {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 0 20px;
+    }
+    .route-path .duration { font-size: 11px; color: var(--text-secondary); }
+    .route-line {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, var(--collins-blue), var(--collins-cyan), var(--collins-blue));
+      position: relative;
+    }
+    .route-line .plane-icon {
+      position: absolute; top: -8px; font-size: 16px;
+      animation: flyAcross 8s ease-in-out infinite alternate;
+    }
+    @keyframes flyAcross { from{left:20%} to{left:75%} }
+    .route-path .status-text { font-size: 11px; color: var(--green); font-weight: 600; }
+
+    /* Map */
+    .map-wrap {
+      flex: 1;
+      background: rgba(0,40,80,0.4);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .map-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(0,87,168,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 50%, rgba(0,200,224,0.08) 0%, transparent 60%);
+    }
+    /* SVG world map simplified */
+    .map-svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .18; }
+    .map-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .flight-path-svg { width: 90%; height: 70%; }
+
+    /* Info strip under map */
+    .info-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      flex-shrink: 0;
+    }
+    .info-tile {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+    .info-tile .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+    .info-tile .value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1; }
+    .info-tile .unit  { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+    .info-tile.highlight { border-color: rgba(0,200,224,0.3); background: rgba(0,200,224,0.07); }
+    .info-tile.highlight .value { color: var(--collins-cyan); }
+
+    /* ── RIGHT: AWARENESS PANEL ── */
+    .right-panel {
+      border-left: 1px solid var(--panel-border);
+      background: rgba(10,15,30,0.6);
+      backdrop-filter: blur(16px);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    .awareness-tabs {
+      display: flex; border-bottom: 1px solid var(--panel-border);
+      flex-shrink: 0;
+    }
+    .tab {
+      flex: 1; padding: 12px 8px;
+      text-align: center; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      letter-spacing: .04em; border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .tab.active { color: var(--collins-cyan); border-bottom-color: var(--collins-cyan); background: rgba(0,200,224,0.05); }
+    .tab:hover:not(.active) { color: var(--text-secondary); }
+
+    .awareness-content {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .awareness-content::-webkit-scrollbar { width: 4px; }
+    .awareness-content::-webkit-scrollbar-track { background: transparent; }
+    .awareness-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+
+    /* Cards */
+    .card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+    .card.status-ok  { border-color: rgba(34,217,138,0.25); background: rgba(34,217,138,0.05); }
+    .card.status-ai  { border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+    .card-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .card-icon { font-size: 16px; }
+    .card-title { font-size: 12px; font-weight: 700; color: #fff; flex: 1; }
+    .card-badge {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      padding: 2px 7px; border-radius: 99px;
+    }
+    .badge-ok     { background: rgba(34,217,138,0.15); color: var(--green); border: 1px solid rgba(34,217,138,0.3); }
+    .badge-live   { background: rgba(0,200,224,0.15); color: var(--collins-cyan); border: 1px solid rgba(0,200,224,0.3); animation: pulse 2s infinite; }
+    .badge-ai     { background: rgba(167,139,250,0.15); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
+
+    .card-rows { display: flex; flex-direction: column; gap: 7px; }
+    .card-row  { display: flex; align-items: flex-start; gap: 8px; }
+    .card-row .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 5px; }
+    .card-row .dot.cyan { background: var(--collins-cyan); }
+    .card-row .dot.purple { background: var(--purple); }
+    .card-row .text { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+    .card-row .text strong { color: var(--text-primary); font-weight: 600; }
+
+    /* System metrics */
+    .sys-metric {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 0; border-bottom: 1px solid var(--panel-border);
+    }
+    .sys-metric:last-child { border-bottom: none; }
+    .sys-metric .sys-name { font-size: 11px; color: var(--text-secondary); }
+    .sys-metric .sys-val  { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+    .sys-metric .sys-bar  { width: 60px; height: 3px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; margin: 0 10px; }
+    .sys-metric .sys-fill { height: 100%; border-radius: 99px; }
+
+    /* AI Chat */
+    .chat-messages { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .msg {
+      border-radius: var(--radius-sm); padding: 9px 12px;
+      font-size: 11.5px; line-height: 1.5;
+      max-width: 95%;
+    }
+    .msg.ai {
+      background: rgba(0,87,168,0.2); border: 1px solid rgba(0,87,168,0.3);
+      color: var(--text-primary); align-self: flex-start;
+    }
+    .msg.user {
+      background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25);
+      color: var(--text-primary); align-self: flex-end;
+    }
+    .msg .msg-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; opacity: .6; }
+    .chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border);
+      border-radius: 99px; padding: 5px 11px;
+      font-size: 10.5px; color: var(--text-secondary); cursor: pointer;
+      transition: all .15s;
+    }
+    .chip:hover { background: rgba(0,200,224,0.1); border-color: rgba(0,200,224,0.3); color: var(--collins-cyan); }
+
+    /* Chat input */
+    .chat-input-row {
+      display: flex; gap: 8px; margin-top: 10px;
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--panel-border);
+      border-radius: 99px; padding: 8px 16px; font-size: 12px;
+      color: var(--text-primary); outline: none; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .chat-input:focus { border-color: rgba(0,200,224,0.4); }
+    .chat-send {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--collins-blue), var(--collins-cyan));
+      border: none; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform .15s;
+    }
+    .chat-send:hover { transform: scale(1.08); }
+
+    /* ── BOTTOM BAR ── */
+    .bottom-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 24px;
+      background: rgba(0,87,168,0.15);
+      border-top: 1px solid var(--panel-border);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .passenger-info { display: flex; align-items: center; gap: 10px; }
+    .passenger-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--collins-blue), var(--collins-cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+    }
+    .passenger-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .passenger-seat {
+      font-size: 10px; color: var(--text-muted);
+      background: rgba(255,255,255,.06);
+      padding: 2px 8px; border-radius: 99px;
+      border: 1px solid var(--panel-border);
+    }
+    .bottom-controls { display: flex; gap: 8px; }
+    .ctrl-btn {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--panel-border);
+      border-radius: var(--radius-sm); padding: 5px 14px;
+      font-size: 11px; font-weight: 600; color: var(--text-secondary);
+      cursor: pointer; transition: all .15s;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .ctrl-btn.primary {
+      background: rgba(0,87,168,0.4); border-color: rgba(0,87,168,0.6);
+      color: var(--collins-cyan);
+    }
+    .eta-pill {
+      background: rgba(34,217,138,0.1); border: 1px solid rgba(34,217,138,0.3);
+      border-radius: 99px; padding: 4px 14px;
+      font-size: 11px; font-weight: 600; color: var(--green);
+    }
+
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
+
+    /* scrollable awareness panel content wrapper */
+    .panel-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0 16px 0 16px;
+    }
+    .panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 8px;
+    }
+    .panel-scroll::-webkit-scrollbar { width: 4px; }
+    .panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+
+    .chat-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 8px;
+    }
+    .chat-scroll::-webkit-scrollbar { width: 4px; }
+    .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+
+    /* ── LANDING NOTIFICATION ── */
+    #landingNotif {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: rgba(6,10,26,0.97);
+      border: 1px solid rgba(0,200,224,0.55);
+      border-radius: 16px; padding: 13px 16px;
+      display: flex; align-items: center; gap: 14px;
+      backdrop-filter: blur(28px);
+      box-shadow: 0 8px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(0,200,224,0.07), inset 0 1px 0 rgba(255,255,255,0.04);
+      z-index: 50; transition: transform 0.65s cubic-bezier(0.34,1.56,0.64,1);
+      min-width: 390px;
+    }
+    #landingNotif.show { transform: translateX(-50%) translateY(0); }
+    .notif-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .notif-sub { font-size: 11px; color: var(--text-secondary); }
+    .notif-cta {
+      background: linear-gradient(135deg,#0057A8,#00c8e0);
+      border: none; border-radius: 99px; padding: 9px 18px;
+      font-size: 12px; font-weight: 700; color: #fff; cursor: pointer;
+      white-space: nowrap; font-family: inherit;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 2px 16px rgba(0,200,224,0.3);
+    }
+    .notif-cta:hover { transform: scale(1.05); }
+    .notif-x {
+      background: transparent; border: none; color: var(--text-muted);
+      font-size: 15px; cursor: pointer; padding: 4px; opacity: .5; transition: opacity .15s;
+    }
+    .notif-x:hover { opacity: 1; }
+
+    /* ── JOURNEY OVERLAY ── */
+    #journeyOverlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: #04080f;
+      display: none; flex-direction: column;
+      opacity: 0; transition: opacity .35s ease;
+    }
+    #journeyOverlay.open { display: flex; opacity: 1; }
+
+    .ov-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 28px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .ov-brand { display: flex; align-items: center; gap: 10px; }
+    .ov-diamond { width: 16px; height: 16px; background: linear-gradient(135deg,#00c8e0,#0057A8); clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+    .ov-brand-t1 { font-size: 13px; font-weight: 700; color: #fff; }
+    .ov-brand-t2 { font-size: 10px; color: var(--text-secondary); }
+    .ov-right { display: flex; align-items: center; gap: 20px; }
+    .ov-stepdots { display: flex; gap: 6px; align-items: center; }
+    .ov-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all .35s; }
+    .ov-dot.active { background: #00c8e0; width: 22px; border-radius: 99px; }
+    .ov-dot.done { background: rgba(34,217,138,0.6); }
+    .ov-close {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 99px; padding: 6px 16px; font-size: 12px; color: var(--text-secondary);
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .ov-close:hover { background: rgba(255,255,255,0.11); color: #fff; }
+
+    .ov-body { flex: 1; overflow: hidden; position: relative; }
+    .ov-step { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity .3s; display: flex; flex-direction: column; }
+    .ov-step.active { opacity: 1; pointer-events: all; }
+
+    /* Step 1 — Explorer */
+    .s1-head { padding: 16px 32px 2px; flex-shrink: 0; }
+    .s1-head h2 { font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .s1-head p  { font-size: 12px; color: var(--text-secondary); }
+    .s1-body { flex: 1; display: flex; min-height: 0; }
+    .plane-stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 12px 16px 28px; overflow: hidden; }
+    .plane-svg { width: 100%; max-width: 660px; }
+
+    /* Zone hotspot SVG elements */
+    .z-hit { cursor: pointer; }
+    .z-ring { fill: none; stroke: #00c8e0; stroke-width: 2; animation: zPulse 2.4s ease-in-out infinite; }
+    .z-ring.bags-col { stroke: #22d98a; }
+    .z-ring.d2 { animation-delay: .5s; }
+    .z-ring.d3 { animation-delay: 1s; }
+    .z-ring.d4 { animation-delay: 1.5s; }
+    .z-ring.d5 { animation-delay: .25s; }
+    @keyframes zPulse { 0%,100% { r:9; opacity:.7; } 50% { r:15; opacity:.15; } }
+    .z-hit.visited .z-inner { fill: #22d98a !important; }
+    .z-hit.visited .z-ring { stroke: #22d98a; }
+    .z-hit.selected .z-inner { fill: #00c8e0; }
+
+    /* Info panel (right side of step 1) */
+    .info-panel {
+      width: 300px; background: rgba(255,255,255,0.025);
+      border-left: 1px solid rgba(255,255,255,0.06);
+      display: flex; flex-direction: column; padding: 22px 20px; flex-shrink: 0;
+    }
+    .zone-ph { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; text-align: center; opacity: .45; }
+    .zone-ph .phi { font-size: 34px; }
+    .zone-ph .pht { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .zone-ph .phs { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .zone-detail { display: none; flex-direction: column; gap: 9px; flex: 1; }
+    .zone-detail.show { display: flex; }
+    .zd-icon { font-size: 28px; }
+    .zd-name { font-size: 16px; font-weight: 800; color: #fff; }
+    .zd-ok { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--green); font-weight: 600; }
+    .zd-ok .gs { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .zd-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.6; }
+    .zd-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .zd-chip { font-size: 10px; background: rgba(0,200,224,0.08); border: 1px solid rgba(0,200,224,0.22); color: var(--collins-cyan); border-radius: 99px; padding: 4px 11px; }
+    .exp-track { display: flex; gap: 6px; margin-top: auto; padding-top: 14px; }
+    .exp-pip { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.12); transition: all .3s; }
+    .exp-pip.done { background: var(--green); box-shadow: 0 0 5px var(--green); }
+    .exp-count { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+    .go-fb {
+      margin-top: 14px;
+      background: linear-gradient(135deg,#0057A8,#00c8e0);
+      border: none; border-radius: var(--radius-md); padding: 12px;
+      font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit;
+      opacity: .22; transition: opacity .3s, transform .15s; width: 100%;
+    }
+    .go-fb.ready { opacity: 1; }
+    .go-fb.ready:hover { transform: translateY(-1px); }
+
+    /* Step 2 — Flight story navigator */
+    .fs-wrap { flex: 1; display: flex; flex-direction: column; padding: 14px 28px 16px; gap: 12px; overflow: hidden; }
+
+    /* Mini arc at top showing all flight phases */
+    .fs-arc-wrap { flex-shrink: 0; }
+    .fs-arc-svg { width: 100%; height: 64px; overflow: visible; }
+    .fs-arc-dot { cursor: pointer; transition: all .25s; }
+
+    /* Main phase card */
+    .fs-card-area { flex: 1; min-height: 0; display: flex; }
+    .fs-card {
+      flex: 1; display: flex; gap: 0;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(0,200,224,0.18);
+      border-radius: 18px; overflow: hidden; transition: border-color .4s;
+    }
+    .fs-left { flex: 1; padding: 22px 24px; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid rgba(255,255,255,0.05); min-width: 0; }
+    .fs-icon { font-size: 34px; flex-shrink: 0; }
+    .fs-time { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700;
+      background: rgba(0,200,224,0.1); border: 1px solid rgba(0,200,224,0.25); color: var(--collins-cyan);
+      border-radius: 99px; padding: 3px 12px; align-self: flex-start; transition: all .3s; }
+    .fs-pname { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2; }
+    .fs-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+    .fs-stat { margin-top: auto; }
+    .fs-stat-num { font-size: 28px; font-weight: 800; color: var(--collins-cyan); line-height: 1; transition: color .3s; }
+    .fs-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    .fs-right { width: 210px; flex-shrink: 0; padding: 20px 16px; display: flex; flex-direction: column; gap: 0; }
+    .fs-sys-hdr { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 10px; }
+    .fs-systems { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .fs-sys-row { display: flex; flex-direction: column; gap: 4px; }
+    .fs-sys-name { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); }
+    .fs-sys-pct { font-size: 10px; color: var(--text-muted); }
+    .fs-sys-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+    .fs-sys-fill { height: 100%; border-radius: 99px; width: 0; transition: width .65s ease; }
+    .fs-sys-fill.cyan  { background: linear-gradient(90deg,#0057A8,#00c8e0); }
+    .fs-sys-fill.green { background: linear-gradient(90deg,#16a06a,#22d98a); }
+
+    /* Altitude mini-indicator */
+    .fs-alt-wrap { margin-top: auto; padding-top: 14px; }
+    .fs-alt-hdr { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 7px; }
+    .fs-alt-row { display: flex; align-items: flex-end; gap: 10px; height: 44px; }
+    .fs-alt-bar { flex: 1; height: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; display: flex; align-items: flex-end; }
+    .fs-alt-fill { width: 100%; border-radius: 4px; transition: height .7s ease; background: linear-gradient(180deg, rgba(0,200,224,0.5), rgba(0,200,224,0.1)); min-height: 2px; }
+    .fs-alt-val { font-size: 10px; color: var(--text-secondary); white-space: nowrap; line-height: 1.3; }
+
+    /* Card fade on phase change */
+    .fs-card { transition: border-color .4s, opacity .22s ease; }
+
+    /* Video controls */
+    .fs-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding: 2px 0; }
+    .fs-play-btn {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(0,87,168,0.35); border: 1px solid rgba(0,200,224,0.35);
+      color: var(--collins-cyan); font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, transform .15s; font-family: inherit;
+    }
+    .fs-play-btn:hover { background: rgba(0,87,168,0.55); transform: scale(1.08); }
+
+    /* Scrubber */
+    .fs-scrubber {
+      flex: 1; height: 20px; display: flex; align-items: center; cursor: pointer; position: relative;
+    }
+    .fs-scrub-track {
+      position: absolute; left: 0; right: 0; height: 4px;
+      background: rgba(255,255,255,0.08); border-radius: 99px; overflow: visible;
+    }
+    .fs-scrub-fill {
+      height: 100%; border-radius: 99px; width: 0%;
+      background: linear-gradient(90deg, #0057A8, #00c8e0);
+      transition: width .4s ease; position: relative;
+    }
+    .fs-scrub-handle {
+      position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #00c8e0; box-shadow: 0 0 8px rgba(0,200,224,0.6);
+    }
+    /* Phase markers on scrubber */
+    .fs-scrub-mark {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 2px; height: 8px; background: rgba(255,255,255,0.12); border-radius: 1px;
+      cursor: pointer;
+    }
+    .fs-scrub-mark.passed { background: rgba(34,217,138,0.45); }
+    .fs-scrub-mark.active { background: #00c8e0; height: 12px; }
+
+    .fs-counter { font-size: 11px; color: var(--text-muted); flex-shrink: 0; min-width: 32px; text-align: right; }
+    .fs-rate-btn {
+      background: rgba(0,87,168,0.3); border: 1px solid rgba(0,200,224,0.3);
+      border-radius: 99px; padding: 7px 16px; font-size: 11px; font-weight: 700;
+      color: var(--collins-cyan); cursor: pointer; font-family: inherit;
+      white-space: nowrap; transition: background .15s; flex-shrink: 0;
+    }
+    .fs-rate-btn:hover { background: rgba(0,87,168,0.5); }
+
+    /* Step 3 — Feedback */
+    .s2-wrap { flex: 1; overflow-y: auto; padding: 20px 8% 36px; display: flex; flex-direction: column; }
+    .s2-wrap::-webkit-scrollbar { width: 4px; }
+    .s2-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 99px; }
+    .s2-hdr { text-align: center; padding: 4px 0 22px; }
+    .s2-hdr h2 { font-size: 21px; font-weight: 800; color: #fff; margin-bottom: 7px; }
+    .s2-hdr p  { font-size: 13px; color: var(--text-secondary); }
+    .fb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 13px; }
+    .fb-card {
+      background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 17px 15px; transition: border-color .25s, background .25s;
+    }
+    .fb-card.rated { border-color: rgba(0,200,224,0.3); background: rgba(0,200,224,0.04); }
+    .fbc-icon { font-size: 24px; margin-bottom: 8px; }
+    .fbc-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .fbc-sub  { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; }
+    .stars { display: flex; gap: 5px; }
+    .star { font-size: 22px; cursor: pointer; opacity: .2; transition: opacity .12s, transform .1s; line-height: 1; user-select: none; }
+    .star:hover { transform: scale(1.2); }
+    .star.lit { opacity: 1; color: #f59e0b; }
+    .submit-btn {
+      align-self: center; margin-top: 22px;
+      background: linear-gradient(135deg,#0057A8,#00c8e0);
+      border: none; border-radius: var(--radius-md); padding: 13px 44px;
+      font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit;
+      opacity: .22; transition: opacity .3s, transform .15s;
+      box-shadow: 0 4px 20px rgba(0,200,224,0.2);
+    }
+    .submit-btn.ready { opacity: 1; }
+    .submit-btn.ready:hover { transform: translateY(-1px); }
+
+    /* Step 3 — Thank you */
+    .s3-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; text-align: center; padding: 40px 10%; }
+    .s3-wrap .ty-icon { font-size: 50px; }
+    .s3-wrap h2 { font-size: 24px; font-weight: 800; color: #fff; }
+    .s3-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.65; max-width: 430px; }
+    .ty-tags { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin: 6px 0; }
+    .ty-tag { font-size: 12px; background: rgba(34,217,138,0.07); border: 1px solid rgba(34,217,138,0.22); color: var(--green); border-radius: 99px; padding: 6px 16px; }
+    .ty-brand-line { font-size: 11px; color: var(--text-muted); }
+    .ty-back {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-md); padding: 12px 28px;
+      font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer; font-family: inherit;
+      transition: all .15s; margin-top: 6px;
+    }
+    .ty-back:hover { background: rgba(255,255,255,0.11); }
+  </style>
+</head>
+<body>
+
+<div class="screen-wrap">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="collins-logo">
+        <div class="diamond"></div>
+        <div>
+          <div class="brand">SMART TRAVEL</div>
+          <div class="sub">Smart Travel Intelligence</div>
+        </div>
+      </div>
+      <div class="flight-badge">BA 178</div>
+    </div>
+    <div class="status-right">
+      <div class="sys-pill"><div class="sys-dot green"></div> Flight on track</div>
+      <div class="sys-pill"><div class="sys-dot cyan"></div> Wi-Fi · 42 Mbps</div>
+      <div class="time-display" id="clock">10:24 UTC</div>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+
+    <!-- LEFT: MAP -->
+    <div class="left-panel">
+
+      <!-- Route header -->
+      <div class="route-header">
+        <div class="route-airport">
+          <div class="iata">JFK</div>
+          <div class="city">New York</div>
+        </div>
+        <div class="route-path">
+          <div class="duration">6 hr 42 min remaining</div>
+          <div class="route-line">
+            <div class="plane-icon">✈</div>
+          </div>
+          <div class="status-text">On Time · ETA 12:05 LHR</div>
+        </div>
+        <div class="route-airport" style="text-align:right">
+          <div class="iata">LHR</div>
+          <div class="city">London</div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="map-wrap">
+        <div class="map-bg"></div>
+
+        <!-- Simplified world outline -->
+        <svg class="map-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- North America rough outline -->
+          <path d="M 60 80 L 100 60 L 180 55 L 200 75 L 220 65 L 240 80 L 230 120 L 210 150 L 200 200 L 180 230 L 160 240 L 140 220 L 100 230 L 80 200 L 70 160 L 60 130 Z" fill="rgba(100,160,255,0.3)" stroke="rgba(100,160,255,0.5)" stroke-width="1"/>
+          <!-- Greenland -->
+          <path d="M 250 30 L 290 20 L 310 40 L 300 70 L 270 80 L 250 60 Z" fill="rgba(100,160,255,0.2)" stroke="rgba(100,160,255,0.4)" stroke-width="1"/>
+          <!-- UK/Europe rough -->
+          <path d="M 400 80 L 430 70 L 460 75 L 480 90 L 490 110 L 470 130 L 450 140 L 420 130 L 405 115 Z" fill="rgba(100,160,255,0.3)" stroke="rgba(100,160,255,0.5)" stroke-width="1"/>
+          <!-- Iceland -->
+          <path d="M 330 65 L 360 58 L 375 70 L 365 82 L 340 80 Z" fill="rgba(100,160,255,0.2)" stroke="rgba(100,160,255,0.4)" stroke-width="1"/>
+        </svg>
+
+        <div class="map-overlay">
+          <svg class="flight-path-svg" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Great circle arc -->
+            <defs>
+              <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#0057A8;stop-opacity:0.8"/>
+                <stop offset="100%" style="stop-color:#00c8e0;stop-opacity:0.8"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+
+            <!-- Dotted planned path -->
+            <path d="M 60 140 Q 300 40 540 130" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+            <!-- Flown segment (glow) -->
+            <path d="M 60 140 Q 170 80 270 75" fill="none" stroke="url(#pathGrad)" stroke-width="2.5" filter="url(#glow)" opacity="0.9"/>
+
+            <!-- JFK dot -->
+            <circle cx="60" cy="140" r="5" fill="#0057A8" stroke="#fff" stroke-width="1.5"/>
+            <text x="55" y="160" font-size="10" fill="rgba(255,255,255,0.6)" font-family="Inter,sans-serif" text-anchor="middle">JFK</text>
+
+            <!-- LHR dot -->
+            <circle cx="540" cy="130" r="5" fill="rgba(0,200,224,0.4)" stroke="rgba(0,200,224,0.6)" stroke-width="1.5"/>
+            <text x="540" y="150" font-size="10" fill="rgba(255,255,255,0.5)" font-family="Inter,sans-serif" text-anchor="middle">LHR</text>
+
+            <!-- Current position -->
+            <circle cx="270" cy="75" r="7" fill="none" stroke="#00c8e0" stroke-width="2" opacity="0.6">
+              <animate attributeName="r" values="7;14;7" dur="2.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="270" cy="75" r="5" fill="#00c8e0" stroke="#fff" stroke-width="1.5"/>
+            <text x="270" y="58" font-size="10" fill="#00c8e0" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">✈ 38,000 ft</text>
+
+            <!-- Turbulence zone -->
+            <ellipse cx="380" cy="90" rx="22" ry="14" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+            <text x="380" y="94" font-size="8.5" fill="rgba(245,158,11,0.8)" font-family="Inter,sans-serif" text-anchor="middle">~35 min</text>
+          </svg>
+        </div>
+
+        <!-- Map legend -->
+        <div style="position:absolute;bottom:10px;left:14px;display:flex;gap:12px;align-items:center;">
+          <span style="font-size:9px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:4px;">
+            <span style="width:16px;height:1px;background:rgba(255,255,255,.2);display:inline-block;margin-right:2px;"></span> Planned
+          </span>
+          <span style="font-size:9px;color:rgba(0,200,224,.7);display:flex;align-items:center;gap:4px;">
+            <span style="width:16px;height:2px;background:linear-gradient(90deg,#0057A8,#00c8e0);display:inline-block;border-radius:99px;margin-right:2px;"></span> Flown
+          </span>
+          <span style="font-size:9px;color:rgba(245,158,11,.7);display:flex;align-items:center;gap:4px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);display:inline-block;margin-right:2px;"></span> Light Turbulence
+          </span>
+        </div>
+      </div>
+
+      <!-- Info strip -->
+      <div class="info-strip">
+        <div class="info-tile">
+          <div class="label">Altitude</div>
+          <div class="value">38,000</div>
+          <div class="unit">ft · stable</div>
+        </div>
+        <div class="info-tile">
+          <div class="label">Ground Speed</div>
+          <div class="value">547</div>
+          <div class="unit">kts</div>
+        </div>
+        <div class="info-tile highlight">
+          <div class="label">ETA London</div>
+          <div class="value">12:05</div>
+          <div class="unit">On schedule</div>
+        </div>
+        <div class="info-tile">
+          <div class="label">Cabin Pressure</div>
+          <div class="value">6,000</div>
+          <div class="unit">ft equivalent</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: AWARENESS PANEL -->
+    <div class="right-panel">
+      <div class="awareness-tabs">
+        <div class="tab" onclick="switchTab('flight', this)">FLIGHT</div>
+        <div class="tab active" onclick="switchTab('bag', this)">MY BAG</div>
+        <div class="tab" onclick="switchTab('ai', this)">ASK AI</div>
+      </div>
+
+      <!-- FLIGHT TAB -->
+      <div id="tab-status" class="panel-inner" style="padding-top:14px;display:none;">
+        <div class="panel-scroll">
+
+          <!-- Overall flight progress bar -->
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--panel-border);border-radius:var(--radius-lg);padding:18px 16px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;">
+              <div>
+                <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">Flight progress</div>
+                <div style="font-size:22px;font-weight:800;color:#fff;">38<span style="font-size:13px;font-weight:500;color:var(--text-secondary);">% complete</span></div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:11px;color:var(--text-muted);">6 hr 42 min left</div>
+                <div style="font-size:11px;color:var(--green);font-weight:600;">On schedule</div>
+              </div>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+              <div style="width:38%;height:100%;background:linear-gradient(90deg,var(--collins-blue),var(--collins-cyan));border-radius:99px;position:relative;">
+                <div style="position:absolute;right:0;top:50%;transform:translate(50%,-50%);width:12px;height:12px;background:var(--collins-cyan);border-radius:50%;border:2px solid #0a0f1e;box-shadow:0 0 8px var(--collins-cyan);"></div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:7px;">
+              <span style="font-size:10px;color:var(--text-muted);">JFK</span>
+              <span style="font-size:10px;color:var(--text-muted);">LHR · 12:05</span>
+            </div>
+          </div>
+
+          <!-- Journey steps -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-icon">🛫</span>
+              <span class="card-title">Flight journey</span>
+            </div>
+            <div style="display:flex;flex-direction:column;">
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                  <div style="width:1px;background:rgba(34,217,138,0.2);min-height:20px;margin-top:3px;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:#fff;">Check-in &amp; boarding</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Completed</div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);padding-top:2px;">08:40</div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                  <div style="width:1px;background:rgba(34,217,138,0.2);min-height:20px;margin-top:3px;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:#fff;">Doors closed &amp; pushback</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Completed</div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);padding-top:2px;">09:18</div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                  <div style="width:1px;background:rgba(34,217,138,0.2);min-height:20px;margin-top:3px;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:#fff;">Takeoff</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Completed · departed on time</div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);padding-top:2px;">09:32</div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--collins-cyan);box-shadow:0 0 6px var(--collins-cyan);flex-shrink:0;"></div>
+                  <div style="width:1px;background:rgba(255,255,255,0.08);min-height:20px;margin-top:3px;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:var(--collins-cyan);">Cruising at 38,000 ft ✈</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">In progress · Wi-Fi connected</div>
+                  <!-- Systems quietly running -->
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+                    <div style="display:flex;align-items:center;gap:5px;background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.18);border-radius:99px;padding:4px 10px;">
+                      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);"></div>
+                      <span style="font-size:10px;color:rgba(240,244,255,0.65);">Navigation</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.18);border-radius:99px;padding:4px 10px;">
+                      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);"></div>
+                      <span style="font-size:10px;color:rgba(240,244,255,0.65);">Cabin air</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.18);border-radius:99px;padding:4px 10px;">
+                      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);"></div>
+                      <span style="font-size:10px;color:rgba(240,244,255,0.65);">Connectivity</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.18);border-radius:99px;padding:4px 10px;">
+                      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);"></div>
+                      <span style="font-size:10px;color:rgba(240,244,255,0.65);">Lighting</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.18);border-radius:99px;padding:4px 10px;">
+                      <div style="width:5px;height:5px;border-radius:50%;background:var(--green);"></div>
+                      <span style="font-size:10px;color:rgba(240,244,255,0.65);">Entertainment</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="align-self:flex-start;">
+                  <span style="font-size:9px;background:rgba(0,200,224,0.12);color:var(--collins-cyan);border:1px solid rgba(0,200,224,0.25);border-radius:99px;padding:2px 8px;font-weight:600;">Now</span>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:rgba(245,158,11,0.4);border:1px solid rgba(245,158,11,0.5);flex-shrink:0;"></div>
+                  <div style="width:1px;background:rgba(255,255,255,0.08);min-height:20px;margin-top:3px;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:rgba(245,158,11,0.8);">Light bumps ahead</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Brief &amp; mild — nothing to worry about</div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);padding-top:2px;">~35 min</div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);flex-shrink:0;"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;font-weight:600;color:var(--text-secondary);">Landing at LHR</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Terminal 5 · on schedule</div>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);padding-top:2px;">12:05</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BAG TAB -->
+      <div id="tab-bag" class="panel-inner" style="padding-top:14px;">
+        <div class="panel-scroll">
+
+          <!-- Big reassuring hero -->
+          <div style="background:rgba(34,217,138,0.07);border:1px solid rgba(34,217,138,0.2);border-radius:var(--radius-lg);padding:20px 16px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">🧳</div>
+            <div style="font-size:17px;font-weight:700;color:var(--green);margin-bottom:4px;">Your bags are with you</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">Both bags confirmed on board<br>and travelling in the hold below you.</div>
+          </div>
+
+          <!-- Journey steps -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-icon">📍</span>
+              <span class="card-title">Bag journey</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0;">
+
+              <!-- Step: checked in -->
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                  <div style="width:1px;flex:1;background:rgba(34,217,138,0.2);min-height:24px;margin-top:3px;"></div>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:#fff;">Checked in at JFK</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">2 bags · completed</div>
+                </div>
+                <div style="margin-left:auto;font-size:10px;color:var(--text-muted);">08:40</div>
+              </div>
+
+              <!-- Step: loaded -->
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+                  <div style="width:1px;flex:1;background:rgba(34,217,138,0.2);min-height:24px;margin-top:3px;"></div>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:#fff;">Loaded into hold B</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Completed</div>
+                </div>
+                <div style="margin-left:auto;font-size:10px;color:var(--text-muted);">09:14</div>
+              </div>
+
+              <!-- Step: in flight (active) -->
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--panel-border);">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:var(--collins-cyan);box-shadow:0 0 6px var(--collins-cyan);flex-shrink:0;"></div>
+                  <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);min-height:24px;margin-top:3px;"></div>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:var(--collins-cyan);">In flight with you ✈</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Right below, in the hold</div>
+                </div>
+                <div style="margin-left:auto;">
+                  <span style="font-size:9px;background:rgba(0,200,224,0.12);color:var(--collins-cyan);border:1px solid rgba(0,200,224,0.25);border-radius:99px;padding:2px 8px;font-weight:600;">Now</span>
+                </div>
+              </div>
+
+              <!-- Step: arrival (upcoming) -->
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;">
+                <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);flex-shrink:0;"></div>
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:600;color:var(--text-secondary);">Ready at LHR</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Carousel 3 · Terminal 5 · ~12:28</div>
+                </div>
+                <div style="margin-left:auto;font-size:10px;color:var(--text-muted);">~12:28</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Arrival tip — calm, useful -->
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--panel-border);border-radius:var(--radius-md);padding:13px 14px;display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:15px;flex-shrink:0;">💡</span>
+            <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.5;">
+              Bags usually arrive at the belt about <strong style="color:var(--text-primary);">20–25 min after landing</strong>. We'll live track them and update you the moment they're ready to collect.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- AI TAB -->
+      <div id="tab-ai" class="panel-inner" style="display:none;padding-top:14px;padding-bottom:14px;padding-bottom:14px;">
+        <div class="chat-wrap">
+          <div class="chat-scroll">
+            <div class="chat-messages">
+              <div class="msg ai">
+                <div class="msg-label">Travel AI</div>
+                You're cruising at 38,000 ft. Everything is running smoothly — Wi-Fi is connected, cabin pressure is comfortable, and your ETA is 12:05 on schedule. There's a little turbulence in about 35 min, but nothing to worry about.
+              </div>
+              <div class="msg user">
+                <div class="msg-label">Yasmin</div>
+                Where are we now?
+              </div>
+              <div class="msg ai">
+                <div class="msg-label">Travel AI</div>
+                You're currently over the North Atlantic, approximately 1,840 nautical miles from London. Ground speed 547 kts, altitude 38,000 ft. About 6 hours 42 minutes remaining.
+              </div>
+              <div class="msg user">
+                <div class="msg-label">Yasmin</div>
+                Will we land on time?
+              </div>
+              <div class="msg ai">
+                <div class="msg-label">Travel AI</div>
+                Yes — Collins flight management confirms ETA 12:05 LHR, exactly on schedule. No air traffic delays or downstream issues reported.
+              </div>
+              <div class="msg user">
+                <div class="msg-label">Yasmin</div>
+                Where is my bag?
+              </div>
+              <div class="msg ai">
+                <div class="msg-label">Travel AI</div>
+                Both bags are confirmed onboard in Hold B. Collins RFID tracking verified before pushback. At LHR they'll arrive at Carousel 3, Terminal 5 around 12:28.
+              </div>
+            </div>
+            <div class="chat-suggestions">
+              <div class="chip" onclick="sendChip(this)">What's the weather in London?</div>
+              <div class="chip" onclick="sendChip(this)">How long until turbulence?</div>
+              <div class="chip" onclick="sendChip(this)">Is my connection safe?</div>
+              <div class="chip" onclick="sendChip(this)">Cabin temperature?</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" type="text" placeholder="Ask about your flight…" id="chatInput" onkeydown="if(event.key==='Enter')sendMessage()"/>
+            <button class="chat-send" onclick="sendMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="passenger-info">
+      <div class="passenger-avatar">YS</div>
+      <div class="passenger-name">Yasmin</div>
+      <div class="passenger-seat">Seat 12A · Business</div>
+    </div>
+    <div class="eta-pill">ETA 12:05 LHR · On Time</div>
+    <div class="bottom-controls">
+      <button class="ctrl-btn">🎵 Entertainment</button>
+      <button class="ctrl-btn">🍽 Meals</button>
+      <button class="ctrl-btn primary">💬 Call Crew</button>
+    </div>
+  </div>
+
+
+  <!-- ── LANDING NOTIFICATION ── -->
+  <div id="landingNotif">
+    <div style="font-size:22px;flex-shrink:0;">✈</div>
+    <div style="flex:1;">
+      <div class="notif-title">Landing in London in 15 minutes</div>
+      <div class="notif-sub">See what ran quietly behind your journey · Share your feedback</div>
+    </div>
+    <button class="notif-cta" onclick="openOverlay()">Explore →</button>
+    <button class="notif-x" onclick="dismissNotif()">✕</button>
+  </div>
+
+  <!-- ── JOURNEY OVERLAY ── -->
+  <div id="journeyOverlay">
+
+    <!-- Header -->
+    <div class="ov-hdr">
+      <div class="ov-brand">
+        <div class="ov-diamond"></div>
+        <div>
+          <div class="ov-brand-t1">Your journey · powered by</div>
+          <div class="ov-brand-t2">Smart Travel Intelligence</div>
+        </div>
+      </div>
+      <div class="ov-right">
+        <div class="ov-stepdots">
+          <div class="ov-dot active" id="ov-dot-1"></div>
+          <div class="ov-dot" id="ov-dot-2"></div>
+          <div class="ov-dot" id="ov-dot-3"></div>
+          <div class="ov-dot" id="ov-dot-4"></div>
+        </div>
+        <button class="ov-close" onclick="closeOverlay()">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="ov-body">
+
+      <!-- STEP 1 · Explore the aircraft -->
+      <div class="ov-step active" id="ov-step-1">
+        <div class="s1-head">
+          <h2>What powered your journey</h2>
+          <p>Tap any glowing zone on the aircraft to discover the systems running quietly for you</p>
+        </div>
+        <div class="s1-body">
+
+          <!-- Plane SVG stage -->
+          <div class="plane-stage">
+            <svg viewBox="0 0 900 290" xmlns="http://www.w3.org/2000/svg" class="plane-svg">
+              <defs>
+                <linearGradient id="fuseG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0d2552"/>
+                  <stop offset="100%" stop-color="#06102a"/>
+                </linearGradient>
+                <linearGradient id="wingG" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#091c42"/>
+                  <stop offset="100%" stop-color="#030c1e"/>
+                </linearGradient>
+                <filter id="glo"><feGaussianBlur stdDeviation="3" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="glo2"><feGaussianBlur stdDeviation="5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+              </defs>
+
+              <!-- Vertical tail fin -->
+              <path d="M 700 120 L 715 42 L 750 44 L 748 120 Z" fill="url(#wingG)" stroke="rgba(0,200,224,0.3)" stroke-width="1.2"/>
+
+              <!-- Horizontal stabilisers -->
+              <path d="M 722 148 L 856 144 L 854 154 L 722 152 Z" fill="url(#wingG)" stroke="rgba(0,200,224,0.22)" stroke-width="1"/>
+              <path d="M 722 150 L 666 152 L 666 148 L 722 150 Z" fill="url(#wingG)" stroke="rgba(0,200,224,0.18)" stroke-width="1"/>
+
+              <!-- Lower wing (side view — swept back) -->
+              <path d="M 342 182 L 158 252 L 200 262 L 380 190 Z" fill="url(#wingG)" stroke="rgba(0,200,224,0.28)" stroke-width="1.2"/>
+
+              <!-- Upper wing (opposite side) -->
+              <path d="M 356 120 L 445 62 L 468 73 L 392 122 Z" fill="url(#wingG)" stroke="rgba(0,200,224,0.18)" stroke-width="1"/>
+
+              <!-- Engine pylon -->
+              <rect x="228" y="244" width="10" height="16" fill="rgba(6,16,46,0.95)" rx="2"/>
+              <!-- Engine nacelle -->
+              <path d="M 192 257 Q 192 242 232 240 Q 274 240 274 257 Q 274 272 232 273 Q 192 272 192 257 Z" fill="rgba(7,18,52,0.96)" stroke="rgba(0,200,224,0.35)" stroke-width="1.2"/>
+              <!-- Intake ring -->
+              <circle cx="196" cy="257" r="14" fill="none" stroke="rgba(0,200,224,0.55)" stroke-width="2" filter="url(#glo)"/>
+              <circle cx="196" cy="257" r="9" fill="rgba(2,10,30,0.95)"/>
+              <!-- Exhaust glow -->
+              <ellipse cx="272" cy="257" rx="6" ry="13" fill="rgba(245,158,11,0.05)" stroke="rgba(245,158,11,0.18)" stroke-width="1"/>
+
+              <!-- FUSELAGE -->
+              <path d="M 90 150 Q 115 118 160 118 L 736 118 Q 782 118 782 150 Q 782 182 736 182 L 160 182 Q 115 182 90 150 Z" fill="url(#fuseG)" stroke="rgba(0,200,224,0.45)" stroke-width="1.6"/>
+
+              <!-- Fuselage top highlight -->
+              <path d="M 168 118 L 722 118" stroke="rgba(120,190,255,0.07)" stroke-width="0.5"/>
+
+              <!-- Cabin-hold dividing line -->
+              <path d="M 168 160 L 732 160" stroke="rgba(255,255,255,0.05)" stroke-width="0.8" stroke-dasharray="5,5"/>
+
+              <!-- Cockpit windscreen -->
+              <ellipse cx="120" cy="143" rx="8" ry="5.5" fill="rgba(0,150,210,0.55)" stroke="rgba(0,200,224,0.75)" stroke-width="1.2" transform="rotate(-10,120,143)"/>
+              <ellipse cx="138" cy="137" rx="7" ry="5" fill="rgba(0,140,200,0.4)" stroke="rgba(0,200,224,0.55)" stroke-width="1" transform="rotate(-6,138,137)"/>
+
+              <!-- Passenger windows (dashed trick → row of rounded dots) -->
+              <line x1="186" y1="136" x2="694" y2="136" stroke="rgba(120,180,240,0.38)" stroke-width="7" stroke-dasharray="10,13" stroke-linecap="round"/>
+
+              <!-- Wi-Fi / SATCOM antenna -->
+              <rect x="373" y="111" width="16" height="8" rx="4" fill="rgba(0,200,224,0.2)" stroke="rgba(0,200,224,0.5)" stroke-width="1"/>
+              <rect x="380" y="104" width="2" height="8" rx="1" fill="rgba(0,200,224,0.65)"/>
+
+              <!-- Pitot tube -->
+              <line x1="89" y1="150" x2="71" y2="150" stroke="rgba(200,220,255,0.38)" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- ══ INTERACTIVE HOTSPOT ZONES ══ -->
+
+              <!-- 1 · Navigation (cockpit) -->
+              <g class="z-hit" id="z-nav" data-zone="nav" onclick="selectZone('nav')">
+                <circle cx="128" cy="145" r="28" fill="transparent"/>
+                <circle class="z-ring d1" cx="128" cy="145" r="9"/>
+                <circle class="z-inner" cx="128" cy="145" r="5" fill="#00c8e0" filter="url(#glo)"/>
+                <text x="128" y="125" font-size="9" fill="rgba(0,200,224,0.8)" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">NAVIGATION</text>
+              </g>
+
+              <!-- 2 · Cabin Air (forward top) -->
+              <g class="z-hit" id="z-climate" data-zone="climate" onclick="selectZone('climate')">
+                <circle cx="268" cy="124" r="26" fill="transparent"/>
+                <circle class="z-ring d2" cx="268" cy="124" r="9"/>
+                <circle class="z-inner" cx="268" cy="124" r="5" fill="#00c8e0" filter="url(#glo)"/>
+                <text x="268" y="106" font-size="9" fill="rgba(0,200,224,0.8)" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">CABIN AIR</text>
+              </g>
+
+              <!-- 3 · Wi-Fi (antenna top of fuselage) -->
+              <g class="z-hit" id="z-wifi" data-zone="wifi" onclick="selectZone('wifi')">
+                <circle cx="381" cy="106" r="24" fill="transparent"/>
+                <circle class="z-ring d3" cx="381" cy="106" r="9"/>
+                <circle class="z-inner" cx="381" cy="106" r="5" fill="#00c8e0" filter="url(#glo)"/>
+                <text x="381" y="90" font-size="9" fill="rgba(0,200,224,0.8)" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">WI-FI</text>
+              </g>
+
+              <!-- 4 · Entertainment (mid cabin) -->
+              <g class="z-hit" id="z-ent" data-zone="entertainment" onclick="selectZone('entertainment')">
+                <circle cx="445" cy="150" r="26" fill="transparent"/>
+                <circle class="z-ring d4" cx="445" cy="150" r="9"/>
+                <circle class="z-inner" cx="445" cy="150" r="5" fill="#00c8e0" filter="url(#glo)"/>
+                <text x="445" y="172" font-size="9" fill="rgba(0,200,224,0.8)" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">ENTERTAINMENT</text>
+              </g>
+
+              <!-- 5 · Baggage (hold belly) -->
+              <g class="z-hit" id="z-bags" data-zone="bags" onclick="selectZone('bags')">
+                <circle cx="400" cy="174" r="26" fill="transparent"/>
+                <circle class="z-ring d5 bags-col" cx="400" cy="174" r="9"/>
+                <circle class="z-inner" cx="400" cy="174" r="5" fill="#22d98a" filter="url(#glo)"/>
+                <text x="400" y="193" font-size="9" fill="rgba(34,217,138,0.85)" font-family="Inter,sans-serif" font-weight="600" text-anchor="middle">YOUR BAGS</text>
+              </g>
+
+            </svg>
+          </div>
+
+          <!-- Right info panel -->
+          <div class="info-panel">
+            <!-- Placeholder -->
+            <div class="zone-ph" id="zonePh">
+              <div class="phi">✈</div>
+              <div class="pht">Explore your flight</div>
+              <div class="phs">Tap any glowing hotspot on the aircraft to discover what was running for you</div>
+            </div>
+            <!-- Zone detail -->
+            <div class="zone-detail" id="zoneDetail">
+              <div class="zd-icon" id="zd-icon"></div>
+              <div class="zd-name" id="zd-name"></div>
+              <div class="zd-ok"><div class="gs"></div> Running perfectly throughout</div>
+              <div class="zd-desc" id="zd-desc"></div>
+              <div class="zd-chips" id="zd-chips"></div>
+            </div>
+            <!-- Progress track -->
+            <div class="exp-track">
+              <div class="exp-pip" id="pip-nav" title="Navigation"></div>
+              <div class="exp-pip" id="pip-climate" title="Cabin Air"></div>
+              <div class="exp-pip" id="pip-wifi" title="Wi-Fi"></div>
+              <div class="exp-pip" id="pip-entertainment" title="Entertainment"></div>
+              <div class="exp-pip" id="pip-bags" title="Baggage"></div>
+            </div>
+            <div class="exp-count" id="expCount">0 of 5 explored</div>
+            <button class="go-fb" id="goFb" onclick="goToFeedback()">Rate your experience →</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 2 · Interactive flight story -->
+      <div class="ov-step" id="ov-step-2">
+        <div class="fs-wrap">
+
+          <!-- Mini flight arc — all phases as dots on arc -->
+          <div class="fs-arc-wrap">
+            <svg viewBox="0 0 420 68" class="fs-arc-svg" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="arcG" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#0057A8"/>
+                  <stop offset="100%" stop-color="#00c8e0"/>
+                </linearGradient>
+              </defs>
+              <!-- Full planned arc (dotted) -->
+              <path d="M 20 60 Q 210 2 400 60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="4,5"/>
+              <!-- Visited/flown portion -->
+              <path id="fsFlown" d="M 20 60 Q 210 2 400 60" fill="none" stroke="url(#arcG)" stroke-width="2" stroke-dasharray="0 1200" opacity="0.85"/>
+              <!-- Phase dots on arc -->
+              <g id="fsArcDots"></g>
+            </svg>
+          </div>
+
+          <!-- Main phase card -->
+          <div class="fs-card-area">
+            <div class="fs-card" id="fsCard">
+              <div class="fs-left">
+                <div class="fs-icon" id="fsIcon">🎫</div>
+                <div class="fs-time" id="fsTime">08:40</div>
+                <div class="fs-pname" id="fsPname">Check-in & Boarding</div>
+                <div class="fs-desc" id="fsDesc"></div>
+                <div class="fs-stat">
+                  <div class="fs-stat-num" id="fsStatNum">2 bags</div>
+                  <div class="fs-stat-lbl" id="fsStatLbl">tracked from first scan</div>
+                </div>
+              </div>
+              <div class="fs-right">
+                <div class="fs-sys-hdr">Systems active</div>
+                <div class="fs-systems" id="fsSystems"></div>
+                <div class="fs-alt-wrap">
+                  <div class="fs-alt-hdr">Altitude</div>
+                  <div class="fs-alt-row">
+                    <div class="fs-alt-bar"><div class="fs-alt-fill" id="fsAltFill" style="height:2%"></div></div>
+                    <div class="fs-alt-val" id="fsAltVal">Ground</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video-style controls -->
+          <div class="fs-controls">
+            <button class="fs-play-btn" id="fsPlayBtn" onclick="togglePlay()" title="Play / Pause">⏸</button>
+            <div class="fs-scrubber" id="fsScrubber" onclick="scrubTo(event)">
+              <div class="fs-scrub-track">
+                <div class="fs-scrub-fill" id="fsScrubFill">
+                  <div class="fs-scrub-handle"></div>
+                </div>
+                <div id="fsScrubMarks"></div>
+              </div>
+            </div>
+            <div class="fs-counter" id="fsCounter">1/8</div>
+            <button class="fs-rate-btn" onclick="stopAutoplay(); buildFeedbackCards(); goStep(3);">Rate →</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 3 · Feedback -->
+      <div class="ov-step" id="ov-step-3">
+        <div class="s2-wrap">
+          <div class="s2-hdr">
+            <h2>How did we do, Yasmin?</h2>
+            <p>Rate the systems that kept your journey comfortable</p>
+          </div>
+          <div class="fb-grid" id="fbGrid"></div>
+          <button class="submit-btn" id="submitBtn" onclick="submitFeedback()">Submit feedback →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4 · Thank you -->
+      <div class="ov-step" id="ov-step-4">
+        <div class="s3-wrap">
+          <div class="ty-icon">🌟</div>
+          <h2>Thank you, Yasmin</h2>
+          <div class="s3-sub">Your feedback helps improve every journey. Here's what ran quietly behind the scenes to keep you comfortable on BA 178 today:</div>
+          <div class="ty-tags">
+            <span class="ty-tag">✓ Navigation</span>
+            <span class="ty-tag">✓ Cabin Air</span>
+            <span class="ty-tag">✓ Wi-Fi</span>
+            <span class="ty-tag">✓ Entertainment</span>
+            <span class="ty-tag">✓ Baggage Tracking</span>
+          </div>
+          <div class="ty-brand-line">Powered by Smart Travel Intelligence</div>
+          <button class="ty-back" onclick="closeOverlay()">Back to flight screen</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getUTCHours()).padStart(2,'0');
+    const m = String(now.getUTCMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m} UTC`;
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // Tab switching
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const panels = { flight: 'tab-status', bag: 'tab-bag', ai: 'tab-ai' };
+    Object.entries(panels).forEach(([k, id]) => {
+      const p = document.getElementById(id);
+      p.style.display = (k === name) ? 'flex' : 'none';
+    });
+  }
+
+  // Chat
+  const aiResponses = {
+    'weather':     'London is currently 14°C, partly cloudy with light winds from the SW. A good day to land!',
+    'turbulence':  'The light turbulence patch is ~35 minutes away, over approximately 52°N 25°W. It should last about 8–12 minutes. Mild, no cause for concern.',
+    'connection':  'Your onward connection looks fine — no downstream delays. Collins flight management shows a comfortable buffer.',
+    'temperature': 'Cabin temperature is currently 22°C (72°F). You can request an adjustment from the crew.',
+    'default':     'Your flight is running smoothly and everything is on track. Is there anything specific I can help with?'
+  };
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    input.value = '';
+    setTimeout(() => {
+      const lower = text.toLowerCase();
+      let reply = aiResponses.default;
+      if (lower.includes('weather')) reply = aiResponses.weather;
+      else if (lower.includes('turbulence') || lower.includes('bump')) reply = aiResponses.turbulence;
+      else if (lower.includes('connection')) reply = aiResponses.connection;
+      else if (lower.includes('temperature') || lower.includes('warm') || lower.includes('cold')) reply = aiResponses.temperature;
+      addMessage(reply, 'ai');
+    }, 600);
+  }
+
+  function sendChip(el) {
+    const text = el.textContent;
+    const input = document.getElementById('chatInput');
+    input.value = text;
+    sendMessage();
+    // Switch to AI tab
+    document.querySelectorAll('.tab').forEach((t,i) => {
+      if(i===2) { t.classList.add('active'); }
+      else t.classList.remove('active');
+    });
+    switchTab('ai', document.querySelectorAll('.tab')[2]);
+  }
+
+  function addMessage(text, type) {
+    const scroll = document.querySelector('.chat-scroll');
+    const msgs = scroll.querySelector('.chat-messages');
+    const div = document.createElement('div');
+    div.className = `msg ${type}`;
+    div.innerHTML = `<div class="msg-label">${type === 'ai' ? 'Travel AI' : 'Yasmin'}</div>${text}`;
+    msgs.appendChild(div);
+    scroll.scrollTop = scroll.scrollHeight;
+  }
+
+  // ── LANDING EXPERIENCE ──────────────────────────────────────
+
+  const zoneData = {
+    nav: {
+      icon: '🧭',
+      name: 'Flight Navigation',
+      desc: 'The cockpit flight management systems have been guiding BA 178 precisely along its great circle route over the North Atlantic — managing altitude, heading and speed every second of the journey.',
+      chips: ['GPS Positioning', 'Route Planning', 'Autopilot']
+    },
+    climate: {
+      icon: '🌬️',
+      name: 'Cabin Air & Climate',
+      desc: 'Fresh, pressurised air has been continuously circulated throughout the cabin, maintaining a comfortable equivalent altitude of 6,000 ft and a steady temperature of 22 °C throughout the flight.',
+      chips: ['Pressurisation', 'Temperature', 'Air Quality']
+    },
+    wifi: {
+      icon: '📡',
+      name: 'In-flight Connectivity',
+      desc: 'The satellite antenna on top of the fuselage has been providing your 42 Mbps connection, streaming live flight data to your screen and keeping you connected over the North Atlantic.',
+      chips: ['Satellite Link', '42 Mbps', 'Live Updates']
+    },
+    entertainment: {
+      icon: '🎬',
+      name: 'Cabin Entertainment',
+      desc: 'The seat-back screen you\'re using right now — along with cabin lighting, audio, and seat controls — has been monitored continuously to make sure everything works seamlessly for your journey.',
+      chips: ['IFE Screen', 'Mood Lighting', 'Seat Controls']
+    },
+    bags: {
+      icon: '🧳',
+      name: 'Baggage Tracking',
+      desc: 'RFID sensors confirmed both of your bags are safely loaded in Hold B, directly below you. The same system will follow them through landing and to Carousel 3 at Terminal 5.',
+      chips: ['RFID Tracking', 'Hold B · 2 bags', 'LHR Carousel 3']
+    }
+  };
+
+  let visitedZones = new Set();
+  let ratings = {};
+
+  function selectZone(id) {
+    visitedZones.add(id);
+
+    // Update SVG hotspot states
+    document.querySelectorAll('.z-hit').forEach(el => {
+      el.classList.toggle('selected', el.dataset.zone === id);
+      el.classList.toggle('visited', visitedZones.has(el.dataset.zone));
+    });
+
+    // Populate info panel
+    const z = zoneData[id];
+    document.getElementById('zonePh').style.display = 'none';
+    const det = document.getElementById('zoneDetail');
+    det.classList.add('show');
+    document.getElementById('zd-icon').textContent = z.icon;
+    document.getElementById('zd-name').textContent = z.name;
+    document.getElementById('zd-desc').textContent = z.desc;
+    document.getElementById('zd-chips').innerHTML = z.chips.map(c => `<span class="zd-chip">${c}</span>`).join('');
+
+    // Progress pips
+    ['nav','climate','wifi','entertainment','bags'].forEach(k => {
+      document.getElementById('pip-' + k).classList.toggle('done', visitedZones.has(k));
+    });
+    const n = visitedZones.size;
+    document.getElementById('expCount').textContent = n + ' of 5 explored';
+
+    // Unlock CTA after 3+ zones
+    if (n >= 3) document.getElementById('goFb').classList.add('ready');
+  }
+
+  function openOverlay() {
+    document.getElementById('landingNotif').classList.remove('show');
+    stopAutoplay();
+    const ov = document.getElementById('journeyOverlay');
+    ov.style.display = 'flex';
+    requestAnimationFrame(() => { ov.style.opacity = '1'; });
+    initFlightStory();
+    goStep(2);
+  }
+  function closeOverlay() {
+    stopAutoplay();
+    const ov = document.getElementById('journeyOverlay');
+    ov.style.opacity = '0';
+    setTimeout(() => { ov.style.display = 'none'; }, 350);
+  }
+  function dismissNotif() {
+    document.getElementById('landingNotif').classList.remove('show');
+  }
+
+  function goStep(n) {
+    document.querySelectorAll('.ov-step').forEach((s, i) => s.classList.toggle('active', i === n - 1));
+    document.querySelectorAll('.ov-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === n - 1);
+      d.classList.toggle('done', i < n - 1);
+    });
+    // Animate progress bars when entering Collins report (step 2)
+    if (n === 2) {
+      setTimeout(() => {
+        document.querySelectorAll('.cr-fill').forEach(el => {
+          const w = el.style.width; el.style.width = '0';
+          requestAnimationFrame(() => { el.style.width = w; });
+        });
+      }, 80);
+    }
+  }
+
+  // ── FLIGHT STORY DATA ─────────────────────────────────────
+  const flightPhases = [
+    {
+      time:'08:40', icon:'🎫', name:'Check-in & Boarding',
+      desc:'Your bags were tagged with RFID chips and scanned at JFK check-in. Collins tracking confirmed both bags at the counter and again at the loading belt — before a single bag went near the aircraft.',
+      statNum:'2 bags', statLbl:'tracked from the very first scan',
+      alt:0,
+      systems:[
+        { name:'Baggage Tracking', pct:100, color:'green' },
+        { name:'Navigation Init',  pct:30,  color:'cyan'  },
+      ]
+    },
+    {
+      time:'09:18', icon:'🚜', name:'Pushback & Taxi',
+      desc:'Engines started and the flight management system loaded the full JFK→LHR route. Navigation cross-checked departure procedures against live weather. All three bag scans confirmed before doors closed.',
+      statNum:'3×', statLbl:'bag confirmed before doors closed',
+      alt:2,
+      systems:[
+        { name:'Navigation',       pct:80,  color:'cyan'  },
+        { name:'Baggage Tracking', pct:100, color:'green' },
+        { name:'Cabin Air',        pct:35,  color:'cyan'  },
+      ]
+    },
+    {
+      time:'09:32', icon:'🛫', name:'Takeoff',
+      desc:'Full thrust — BA 178 rotated at 160 kts. The flight management system monitored engine output in real time while the cabin pressure system began adapting so you barely noticed the climb.',
+      statNum:'160 kts', statLbl:'rotation speed off the runway',
+      alt:22,
+      systems:[
+        { name:'Navigation',       pct:95, color:'cyan'  },
+        { name:'Cabin Air',        pct:70, color:'cyan'  },
+        { name:'Baggage Tracking', pct:55, color:'green' },
+      ]
+    },
+    {
+      time:'09:45', icon:'📈', name:'Climbing to Altitude',
+      desc:'Climbing through the clouds, Wi-Fi activated as soon as the aircraft cleared 10,000 ft. Cabin pressure adjusted silently — setting your environment to the equivalent of a 6,000 ft mountain town.',
+      statNum:'10,000 ft', statLbl:'altitude cleared in 13 minutes',
+      alt:55,
+      systems:[
+        { name:'Navigation',  pct:90, color:'cyan' },
+        { name:'Cabin Air',   pct:95, color:'cyan' },
+        { name:'Connectivity',pct:60, color:'cyan' },
+      ]
+    },
+    {
+      time:'10:15 · NOW', icon:'✈️', name:'Cruising at 38,000 ft',
+      desc:'Peak performance. All five Collins systems running simultaneously at full capacity. The autopilot has made 2,847 micro-corrections since takeoff to keep BA 178 precisely on its great circle route.',
+      statNum:'2,847', statLbl:'autopilot corrections made so far',
+      alt:100, isNow:true,
+      systems:[
+        { name:'Navigation',       pct:100, color:'cyan'  },
+        { name:'Cabin Air',        pct:100, color:'cyan'  },
+        { name:'Connectivity',     pct:95,  color:'cyan'  },
+        { name:'Entertainment',    pct:100, color:'cyan'  },
+        { name:'Baggage Tracking', pct:100, color:'green' },
+      ]
+    },
+    {
+      time:'~10:50', icon:'〰️', name:'Light Turbulence Patch',
+      desc:'Brief turbulence over the North Atlantic. The autopilot made continuous adjustments to minimise cabin movement. Entertainment stayed on — not a single dropout through the entire 8-minute event.',
+      statNum:'8 min', statLbl:'mild · fully handled automatically',
+      alt:98,
+      systems:[
+        { name:'Navigation',    pct:100, color:'cyan' },
+        { name:'Entertainment', pct:100, color:'cyan' },
+        { name:'Cabin Air',     pct:100, color:'cyan' },
+      ]
+    },
+    {
+      time:'~11:30', icon:'📉', name:'Beginning Descent',
+      desc:'The flight management system calculated the optimal descent profile for LHR Terminal 5. Cabin pressure has begun gently readjusting back toward sea level. Your bags are already being routed to Carousel 3.',
+      statNum:'160 nm', statLbl:'from London Heathrow',
+      alt:48,
+      systems:[
+        { name:'Navigation',       pct:100, color:'cyan'  },
+        { name:'Cabin Air',        pct:88,  color:'cyan'  },
+        { name:'Baggage Tracking', pct:85,  color:'green' },
+      ]
+    },
+    {
+      time:'12:05', icon:'🛬', name:'Landing at LHR · Terminal 5',
+      desc:'Precision approach — navigation guided BA 178 to within metres of the runway centreline. Exactly on schedule. Welcome to London. Your bags will be at Carousel 3 in about 20 minutes.',
+      statNum:'On time', statLbl:'exactly as planned',
+      alt:0,
+      systems:[
+        { name:'Navigation',       pct:100, color:'cyan'  },
+        { name:'Cabin Air',        pct:65,  color:'cyan'  },
+        { name:'Baggage Tracking', pct:100, color:'green' },
+      ]
+    }
+  ];
+
+  // Precomputed positions along bezier arc for 8 phases
+  // Q(t) = (1-t)²·P0 + 2t(1-t)·P1 + t²·P2  P0=(20,60) P1=(210,2) P2=(400,60)
+  const arcPts = [
+    {cx:20,  cy:60},
+    {cx:72,  cy:40},
+    {cx:124, cy:27},
+    {cx:178, cy:21},
+    {cx:232, cy:21},
+    {cx:286, cy:27},
+    {cx:338, cy:40},
+    {cx:400, cy:60}
+  ];
+
+  let curPhase = 0;
+  let fsTimer  = null;
+  let fsPlaying = true;
+  const PHASE_DURATION = 3800; // ms per phase
+
+  function initFlightStory() {
+    // Build arc dots
+    const g = document.getElementById('fsArcDots');
+    g.innerHTML = arcPts.map((p,i) =>
+      `<circle class="fs-arc-dot" id="farc${i}" cx="${p.cx}" cy="${p.cy}" r="4"
+        fill="rgba(255,255,255,0.15)" onclick="jumpPhase(${i})" style="cursor:pointer"/>`
+    ).join('');
+
+    // Build scrubber phase markers
+    const marks = document.getElementById('fsScrubMarks');
+    marks.innerHTML = flightPhases.map((_,i) => {
+      const pct = (i / (flightPhases.length - 1)) * 100;
+      return `<div class="fs-scrub-mark" id="fmark${i}" style="left:${pct}%" onclick="event.stopPropagation();jumpPhase(${i})"></div>`;
+    }).join('');
+
+    renderPhase(0);
+    startAutoplay();
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    fsPlaying = true;
+    document.getElementById('fsPlayBtn').textContent = '⏸';
+    fsTimer = setInterval(() => {
+      if (curPhase < flightPhases.length - 1) {
+        renderPhase(curPhase + 1);
+      } else {
+        stopAutoplay();
+        // Auto-advance to feedback after last phase
+        setTimeout(() => { buildFeedbackCards(); goStep(3); }, 1200);
+      }
+    }, PHASE_DURATION);
+  }
+
+  function stopAutoplay() {
+    if (fsTimer) { clearInterval(fsTimer); fsTimer = null; }
+    fsPlaying = false;
+    const btn = document.getElementById('fsPlayBtn');
+    if (btn) btn.textContent = '▶';
+  }
+
+  function togglePlay() {
+    if (fsPlaying) { stopAutoplay(); }
+    else { startAutoplay(); }
+  }
+
+  function renderPhase(idx) {
+    curPhase = idx;
+    const card = document.getElementById('fsCard');
+
+    // Scrubber + counter update immediately
+    const pct = (idx / (flightPhases.length - 1)) * 100;
+    document.getElementById('fsScrubFill').style.width = pct + '%';
+    flightPhases.forEach((_,i) => {
+      const m = document.getElementById('fmark'+i);
+      if (!m) return;
+      m.classList.toggle('passed', i < idx);
+      m.classList.toggle('active', i === idx);
+    });
+    document.getElementById('fsCounter').textContent = (idx+1) + '/' + flightPhases.length;
+
+    // Fade out → swap content → fade in
+    card.style.opacity = '0';
+    setTimeout(() => {
+      _applyPhaseContent(idx);
+      card.style.opacity = '1';
+    }, 220);
+  }
+
+  function scrubTo(e) {
+    const rect = document.getElementById('fsScrubber').getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const idx = Math.round(ratio * (flightPhases.length - 1));
+    stopAutoplay();
+    renderPhase(idx);
+  }
+
+  function _applyPhaseContent(idx) {
+    const p = flightPhases[idx];
+
+    document.getElementById('fsIcon').textContent    = p.icon;
+    document.getElementById('fsTime').textContent    = p.time;
+    document.getElementById('fsPname').textContent   = p.name;
+    document.getElementById('fsDesc').textContent    = p.desc;
+    document.getElementById('fsStatNum').textContent = p.statNum;
+    document.getElementById('fsStatLbl').textContent = p.statLbl;
+
+    const isGreen = p.isNow || p.statNum === 'On time';
+    document.getElementById('fsCard').style.borderColor = p.isNow ? 'rgba(0,200,224,0.4)' : 'rgba(0,200,224,0.18)';
+    document.getElementById('fsStatNum').style.color = isGreen ? 'var(--green)' : 'var(--collins-cyan)';
+    const timeEl = document.getElementById('fsTime');
+    timeEl.style.background  = p.isNow ? 'rgba(34,217,138,0.1)'  : 'rgba(0,200,224,0.1)';
+    timeEl.style.borderColor = p.isNow ? 'rgba(34,217,138,0.28)' : 'rgba(0,200,224,0.25)';
+    timeEl.style.color       = p.isNow ? 'var(--green)'           : 'var(--collins-cyan)';
+
+    const sysCont = document.getElementById('fsSystems');
+    sysCont.innerHTML = '';
+    p.systems.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'fs-sys-row';
+      row.innerHTML = `<div class="fs-sys-name"><span>${s.name}</span><span class="fs-sys-pct">${s.pct}%</span></div>
+        <div class="fs-sys-bar"><div class="fs-sys-fill ${s.color}" style="width:0%"></div></div>`;
+      sysCont.appendChild(row);
+      requestAnimationFrame(() => { row.querySelector('.fs-sys-fill').style.width = s.pct + '%'; });
+    });
+
+    const altPct = p.alt;
+    document.getElementById('fsAltFill').style.height = Math.max(2, altPct) + '%';
+    document.getElementById('fsAltVal').textContent =
+      altPct === 0   ? 'Ground'     :
+      altPct === 100 ? '38,000 ft'  :
+      altPct >= 90   ? '~37,000 ft' :
+      altPct >= 70   ? '~28,000 ft' :
+      altPct >= 45   ? '~20,000 ft' :
+      altPct >= 20   ? '~10,000 ft' : '~3,000 ft';
+
+    arcPts.forEach((_,i) => {
+      const d = document.getElementById('farc'+i);
+      if (!d) return;
+      if (i === idx) {
+        d.setAttribute('r','6'); d.setAttribute('fill','#00c8e0');
+        d.setAttribute('stroke','#fff'); d.setAttribute('stroke-width','1.5');
+      } else if (i < idx) {
+        d.setAttribute('r','4'); d.setAttribute('fill','rgba(34,217,138,0.7)');
+        d.removeAttribute('stroke');
+      } else {
+        d.setAttribute('r','4'); d.setAttribute('fill','rgba(255,255,255,0.15)');
+        d.removeAttribute('stroke');
+      }
+    });
+
+    const totalLen = 440;
+    const flownLen = (idx / (flightPhases.length - 1)) * totalLen;
+    document.getElementById('fsFlown').setAttribute('stroke-dasharray', `${flownLen} ${totalLen}`);
+  }
+
+  function changePhase(dir) {
+    stopAutoplay();
+    renderPhase(Math.max(0, Math.min(flightPhases.length - 1, curPhase + dir)));
+  }
+  function jumpPhase(idx) { stopAutoplay(); renderPhase(idx); }
+
+  function goToFeedback() {
+    initFlightStory();
+    goStep(2);
+  }
+
+  function buildFeedbackCards() {
+    const grid = document.getElementById('fbGrid');
+    if (grid.children.length) return; // already built
+    Object.entries(zoneData).forEach(([id, z]) => {
+      const card = document.createElement('div');
+      card.className = 'fb-card';
+      card.id = 'fc-' + id;
+      card.innerHTML = `
+        <div class="fbc-icon">${z.icon}</div>
+        <div class="fbc-name">${z.name}</div>
+        <div class="fbc-sub">${z.chips[0]} · throughout your flight</div>
+        <div class="stars" data-zone="${id}">
+          ${[1,2,3,4,5].map(v => `<span class="star" data-val="${v}" onclick="rateStar('${id}',${v})">★</span>`).join('')}
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function rateStar(id, val) {
+    ratings[id] = val;
+    document.querySelectorAll(`[data-zone="${id}"] .star`).forEach(s => {
+      s.classList.toggle('lit', parseInt(s.dataset.val) <= val);
+    });
+    document.getElementById('fc-' + id).classList.add('rated');
+    const allRated = Object.keys(zoneData).every(k => ratings[k]);
+    document.getElementById('submitBtn').classList.toggle('ready', allRated);
+  }
+
+  function submitFeedback() {
+    goStep(4);
+  }
+
+  // Trigger the notification after 5 s (simulates "15 min before landing")
+  setTimeout(() => {
+    document.getElementById('landingNotif').classList.add('show');
+  }, 5000);
+</script>
+
+</body>
+</html>
