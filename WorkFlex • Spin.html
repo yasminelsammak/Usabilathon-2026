@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WorkFlex • Spin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --colorPrimary: #2A827B;
+    --colorPrimaryBg: #F2FAF8;
+    --colorPrimaryBorder: #62ABA3;
+    --colorPrimaryHover: #136B65;
+    --colorPrimaryActive: #054946;
+    --colorText: #000000;
+    --colorTextSecondary: #5A6872;
+    --colorBgBase: #F4F5F7;
+    --colorBgCard: #FFFFFF;
+    --colorBorder: #D9E2E8;
+    --fontFamily: 'Figtree', sans-serif;
+    --fontSize: 14px;
+    --fontSizeSM: 12px;
+    --fontSizeLG: 16px;
+    --borderRadiusM: 8px;
+    --boxShadow: 0 1px 2px rgba(0,0,0,.03), 0 1px 6px -1px rgba(0,0,0,.02), 0 2px 4px rgba(0,0,0,.02);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 48px;
+    background: var(--colorBgBase);
+    font-family: var(--fontFamily);
+    color: var(--colorText);
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    color: var(--colorTextSecondary);
+    margin: 0 0 32px;
+    font-size: var(--fontSize);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 960px;
+  }
+
+  .cell {
+    background: var(--colorBgCard);
+    border: 1px solid var(--colorBorder);
+    border-radius: var(--borderRadiusM);
+    box-shadow: var(--boxShadow);
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 140px;
+  }
+
+  .label {
+    font-size: var(--fontSizeSM);
+    color: var(--colorTextSecondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  /* ====== Spin (Ant Design style, 4-dot rotating) ====== */
+  .spin {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spin-dot {
+    position: relative;
+    display: inline-block;
+    font-size: 20px;            /* default size */
+    width: 1em;
+    height: 1em;
+  }
+
+  .spin-dot i {
+    position: absolute;
+    display: block;
+    width: 0.375em;             /* ~9px @ 20px */
+    height: 0.375em;
+    background: var(--colorPrimary);
+    border-radius: 100%;
+    opacity: 0.3;
+    transform-origin: 50% 50%;
+    animation: spinPulse 1.4s ease-in-out infinite;
+  }
+
+  .spin-dot i:nth-child(1) { top: 0;    left: 0;    animation-delay: 0s;    }
+  .spin-dot i:nth-child(2) { top: 0;    right: 0;   animation-delay: 0.15s; }
+  .spin-dot i:nth-child(3) { bottom: 0; right: 0;   animation-delay: 0.45s; }
+  .spin-dot i:nth-child(4) { bottom: 0; left: 0;    animation-delay: 0.3s;  }
+
+  /* Sizes */
+  .spin-sm .spin-dot { font-size: 14px; }
+  .spin-md .spin-dot { font-size: 20px; }
+  .spin-lg .spin-dot { font-size: 32px; }
+
+  .spin-text {
+    color: var(--colorPrimary);
+    font-size: var(--fontSize);
+    font-weight: 500;
+  }
+  .spin-sm .spin-text { font-size: var(--fontSizeSM); }
+  .spin-lg .spin-text { font-size: var(--fontSizeLG); }
+
+  @keyframes spinPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.75); }
+    50%      { opacity: 1;   transform: scale(1);    }
+  }
+
+  /* Fullscreen / container demo */
+  .container-demo {
+    margin-top: 32px;
+    background: var(--colorBgCard);
+    border: 1px solid var(--colorBorder);
+    border-radius: var(--borderRadiusM);
+    box-shadow: var(--boxShadow);
+    padding: 24px;
+    max-width: 960px;
+  }
+  .container-demo h2 {
+    margin: 0 0 12px;
+    font-size: var(--fontSizeLG);
+    font-weight: 600;
+  }
+  .panel {
+    position: relative;
+    height: 220px;
+    border: 1px dashed var(--colorBorder);
+    border-radius: var(--borderRadiusM);
+    background: var(--colorPrimaryBg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+  <h1>Spin</h1>
+  <p class="subtitle">Animated loading indicator — WorkFlex Foundation tokens, Figtree, <code>colorPrimary</code>.</p>
+
+  <div class="grid">
+    <div class="cell">
+      <span class="label">Small</span>
+      <div class="spin spin-sm">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+        <span class="spin-text">Loading</span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <span class="label">Default</span>
+      <div class="spin spin-md">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+        <span class="spin-text">Loading</span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <span class="label">Large</span>
+      <div class="spin spin-lg">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+        <span class="spin-text">Loading</span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <span class="label">Small · no text</span>
+      <div class="spin spin-sm">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <span class="label">Default · no text</span>
+      <div class="spin spin-md">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <span class="label">Large · no text</span>
+      <div class="spin spin-lg">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-demo">
+    <h2>Inside a panel</h2>
+    <div class="panel">
+      <div class="spin spin-lg">
+        <span class="spin-dot"><i></i><i></i><i></i><i></i></span>
+        <span class="spin-text">Loading</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
