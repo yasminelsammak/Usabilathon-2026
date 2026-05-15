@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permanent Transfer — Beta Launch Popup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* WorkFlex Foundation tokens */
+      --colorPrimary:         #2A827B;
+      --colorPrimaryBg:       #F2FAF8;
+      --colorPrimaryBorder:   #62ABA3;
+      --colorPrimaryHover:    #136B65;
+      --colorPrimaryActive:   #054946;
+      --colorText:            #000000;
+      --colorTextSecondary:   #5A6872;
+      --colorTextTertiary:    #9BA8B0;
+      --colorTextWhite:       #FFFFFF;
+      --colorBgBase:          #F4F5F7;
+      --colorBgCard:          #FFFFFF;
+      --colorBgElevated:      #F9FAFB;
+      --colorBgChip:          #F9FAFB;
+      --colorBorder:          #D9E2E8;
+      --colorBorderSecondary: #E8E8E8;
+      --colorSeparator:       #D9D9D9;
+      --colorLink:            #1B8CB1;
+      --colorError:           #FF4D4F;
+      --colorErrorBg:         #FFF6F6;
+      --colorWarning:         #F79A3E;
+      --colorWarningBg:       #FFFAF4;
+      --colorInfo:            #30A9CD;
+      --colorInfoBg:          #F0FCFF;
+      --filterBgFilled:       #2C3439;
+      --fontFamily:           'Figtree', sans-serif;
+      --fontSize:             14px;
+      --fontSizeSM:           12px;
+      --fontSizeLG:           16px;
+      --fontSizeXL:           20px;
+      --fontWeightStrong:     600;
+      --borderRadiusXXS:      2px;
+      --borderRadiusXS:       4px;
+      --borderRadiusS:        6px;
+      --borderRadiusM:        8px;
+      --borderRadiusLG:       12px;
+      --boxShadow:            0 1px 2px rgba(0,0,0,.03),0 1px 6px -1px rgba(0,0,0,.02),0 2px 4px rgba(0,0,0,.02);
+      --boxShadowSecondary:   0 6px 16px rgba(0,0,0,.08),0 3px 6px -4px rgba(0,0,0,.12),0 9px 28px 8px rgba(0,0,0,.05);
+      --boxShadowModal:       0 20px 60px -10px rgba(5,73,70,.25),0 8px 24px rgba(0,0,0,.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--fontFamily); font-size: var(--fontSize); color: var(--colorText); background: var(--colorBgBase); -webkit-font-smoothing: antialiased; }
+    .app { width: 1440px; height: 900px; position: relative; overflow: hidden; }
+
+    /* ════════════════ BACKGROUND DASHBOARD ════════════════ */
+    .bg-dashboard { position: absolute; inset: 0; display: flex; background: var(--colorBgBase); }
+    .bg-nav { width: 240px; height: 100%; background: var(--colorBgCard); border-right: 1px solid var(--colorBorder); display: flex; flex-direction: column; }
+    .bg-nav-logo-row { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--colorBorder); min-height: 52px; }
+    .bg-nav-logo-mark { width: 28px; height: 28px; border-radius: var(--borderRadiusXS); background: var(--colorPrimary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--colorTextWhite); font-size: 13px; font-weight: 800; }
+    .bg-nav-wordmark { font-size: 15px; font-weight: 700; color: var(--colorText); flex: 1; letter-spacing: -.2px; }
+    .bg-nav-demo { background: var(--colorBgElevated); border: 1px solid var(--colorBorder); border-radius: var(--borderRadiusXS); padding: 2px 7px; font-size: 11px; font-weight: 500; color: var(--colorTextSecondary); }
+    .bg-nav-hamburger { display: flex; flex-direction: column; gap: 3.5px; padding: 5px; }
+    .bg-nav-hamburger span { display: block; width: 14px; height: 1.5px; background: var(--colorTextSecondary); border-radius: 2px; }
+    .bg-nav-section { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 4px; font-size: 11px; font-weight: 600; color: var(--colorTextTertiary); letter-spacing: .5px; text-transform: uppercase; }
+    .bg-nav-section svg { width: 12px; height: 12px; }
+    .bg-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 14px; font-weight: 400; color: var(--colorTextSecondary); border-left: 2px solid transparent; }
+    .bg-nav-item.active { background: var(--colorPrimaryBg); color: var(--colorPrimary); font-weight: 600; border-left-color: var(--colorPrimary); }
+    .bg-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .bg-nav-spacer { flex: 1; }
+    .bg-nav-upgrade { margin: 8px 12px; background: var(--colorPrimary); border-radius: var(--borderRadiusM); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .bg-nav-upgrade svg { color: var(--colorTextWhite); width: 18px; height: 18px; }
+    .bg-nav-upgrade-text { font-size: 13px; font-weight: 600; color: var(--colorTextWhite); line-height: 1.2; }
+    .bg-nav-upgrade-sub { font-size: 11px; color: rgba(255,255,255,.7); margin-top: 1px; }
+    .bg-nav-user { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--colorBorder); }
+    .bg-nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--colorPrimaryBg); border: 1px solid var(--colorPrimaryBorder); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--colorPrimary); flex-shrink: 0; }
+    .bg-nav-user-name { font-size: 13px; font-weight: 500; color: var(--colorText); flex: 1; }
+    .bg-nav-brand { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-top: 1px solid var(--colorBorder); }
+    .bg-nav-brand-mark { width: 18px; height: 18px; background: var(--colorPrimary); border-radius: var(--borderRadiusXS); }
+    .bg-nav-brand-name { font-size: 12px; font-weight: 600; color: var(--colorPrimary); }
+
+    .bg-main { flex: 1; padding: 28px 40px; overflow: hidden; }
+    .bg-main-eyebrow { font-size: 13px; color: var(--colorTextSecondary); margin-bottom: 6px; font-weight: 500; }
+    .bg-main-title { font-size: 22px; font-weight: 700; color: var(--colorText); }
+    .bg-main-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; }
+    .bg-actions { display: flex; gap: 8px; }
+    .bg-btn { padding: 8px 16px; border-radius: var(--borderRadiusS); border: 1px solid var(--colorBorder); background: var(--colorBgCard); font-size: 13px; font-weight: 500; color: var(--colorText); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .bg-btn.primary { background: var(--colorPrimary); border-color: var(--colorPrimary); color: var(--colorTextWhite); }
+    .bg-btn svg { width: 14px; height: 14px; }
+
+    .bg-tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--colorBorder); margin-bottom: 16px; }
+    .bg-tab { display: flex; align-items: center; gap: 8px; padding: 12px 2px; font-size: 14px; font-weight: 500; color: var(--colorTextSecondary); border-bottom: 2px solid transparent; cursor: pointer; }
+    .bg-tab.active { color: var(--colorPrimary); font-weight: 600; border-bottom-color: var(--colorPrimary); }
+    .bg-tab svg.tab-ico { width: 16px; height: 16px; flex-shrink: 0; }
+    .tab-count { background: var(--colorBgElevated); border: 1px solid var(--colorBorderSecondary); border-radius: 999px; padding: 1px 8px; font-size: 12px; font-weight: 600; color: var(--colorTextSecondary); min-width: 24px; text-align: center; }
+    .bg-tab.active .tab-count { background: var(--colorText); border-color: var(--colorText); color: var(--colorTextWhite); }
+    .bg-tab.locked { color: var(--colorTextTertiary); cursor: pointer; position: relative; animation: lockedNudge 3.4s ease-in-out 1.5s infinite; transition: color .2s, transform .2s; }
+    .bg-tab.locked .tab-ico { color: var(--colorTextTertiary); transition: color .2s; }
+    .bg-tab.locked:hover { color: var(--colorPrimary); }
+    .bg-tab.locked:hover .tab-ico { color: var(--colorPrimary); }
+    @keyframes lockedNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+
+    /* ── Dismissed state — modal/scrim fade out, locked tab spotlighted ── */
+    .app.dismissed .scrim {
+      animation: scrimOut .35s ease-out forwards;
+      pointer-events: none;
+    }
+    .app.dismissed .modal {
+      animation: modalOut .4s cubic-bezier(.4, 0, .6, 1) forwards;
+    }
+    .app.dismissed .modal-wrap { pointer-events: none; }
+    @keyframes scrimOut { to { background: rgba(0,0,0,0); } }
+    @keyframes modalOut { to { opacity: 0; transform: translateY(12px) scale(.94); } }
+
+    /* When dismissed, spotlight the locked tab so user knows where to find it */
+    .app.dismissed .bg-tab.locked {
+      animation: tabSpotlight 2.4s ease-out .3s, lockedNudge 3.4s ease-in-out 2.5s infinite;
+    }
+    .app.dismissed .bg-tab.locked::before {
+      content: ''; position: absolute; inset: -6px -8px;
+      border-radius: var(--borderRadiusS);
+      background: var(--colorPrimaryBg);
+      z-index: -1; opacity: 0;
+      animation: tabHaloFade 2.4s ease-out .3s forwards;
+    }
+    @keyframes tabSpotlight {
+      0%   { transform: translateY(0)    scale(1);    }
+      15%  { transform: translateY(-3px) scale(1.04); }
+      40%  { transform: translateY(0)    scale(1);    }
+      100% { transform: translateY(0)    scale(1);    }
+    }
+    @keyframes tabHaloFade {
+      0%   { opacity: 0; }
+      20%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* WorkFlex Chip (Components key: cf62f79810603e701aae754f246e9f62eb43f16d)
+       Tokens: colorPrimaryBg bg, colorPrimary fg, fontFamily, fontSizeSM */
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px 4px 8px;
+      border-radius: 999px;
+      background: var(--colorPrimaryBg);
+      color: var(--colorPrimary);
+      font-family: var(--fontFamily);
+      font-size: var(--fontSizeSM);
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    /* Inline Icon/sm inside chip — 12×12 */
+    .chip svg { width: 12px; height: 12px; flex-shrink: 0; }
+    /* Compact chip variant for tab labels */
+    .chip.sm { font-size: var(--fontSizeSM); padding: 2px 8px 2px 6px; gap: 4px; }
+    .chip.sm svg { width: 10px; height: 10px; }
+
+    .bg-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-chip { height: 32px; padding: 0 12px; border-radius: var(--borderRadiusS); background: var(--colorBgChip); border: 1px solid var(--colorBorderSecondary); display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--colorText); }
+    .filter-chip.active { background: var(--filterBgFilled); border-color: transparent; color: var(--colorTextWhite); }
+    .filter-chip .num { opacity: .6; }
+    .filter-chip.active .num { opacity: .8; }
+
+    .bg-table { background: var(--colorBgCard); border: 1px solid var(--colorBorder); border-radius: var(--borderRadiusS); overflow: hidden; }
+    .bg-row { display: grid; grid-template-columns: 1.4fr 1fr 1.2fr 1.2fr 1fr 1fr 1fr; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--colorBorderSecondary); align-items: center; font-size: 13px; color: var(--colorText); }
+    .bg-row.header { color: var(--colorTextTertiary); font-size: 12px; font-weight: 500; background: var(--colorBgElevated); }
+    .bg-row:last-child { border-bottom: 0; }
+
+    /* ════════════════ SCRIM (neutral grey modal overlay) ════════════════ */
+    .scrim { position: absolute; inset: 0; background: rgba(0,0,0,0); animation: scrimIn .4s ease-out .05s forwards; }
+    @keyframes scrimIn { to { background: rgba(0,0,0,.45); } }
+
+    /* ════════════════ MODAL ════════════════ */
+    .modal-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 10; }
+    .modal {
+      width: 520px; background: var(--colorBgCard); border-radius: var(--borderRadiusLG);
+      box-shadow: var(--boxShadowModal); overflow: hidden; position: relative;
+      opacity: 0; transform: translateY(24px) scale(.94);
+      animation: modalIn .55s cubic-bezier(.2,.9,.25,1.05) .25s forwards;
+    }
+    @keyframes modalIn {
+      0%   { opacity: 0; transform: translateY(24px) scale(.94); }
+      100% { opacity: 1; transform: translateY(0)    scale(1);   }
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; width: 28px; height: 28px;
+      border-radius: 50%; background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
+      border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--colorTextSecondary); z-index: 30; transition: background .15s, color .15s;
+    }
+    .modal-close:hover { background: var(--colorBgCard); color: var(--colorText); }
+    .modal-close svg { width: 14px; height: 14px; }
+
+    /* ════════════════ HERO — sky scene, brand teal (Primary gradient) ════════════════ */
+    .hero {
+      position: relative; height: 240px;
+      background:
+        radial-gradient(ellipse at 78% -10%, rgba(42,130,123,.28), transparent 55%),
+        linear-gradient(180deg, var(--colorBgElevated) 0%, var(--colorPrimaryBg) 55%, var(--colorBgBase) 100%);
+      overflow: hidden;
+    }
+
+    /* Brand halo (replaces warm sun) — soft Primary radial glow */
+    .sun {
+      position: absolute; top: -70px; right: -50px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle at center,
+        rgba(42,130,123,.55) 0%,
+        rgba(42,130,123,.22) 38%,
+        rgba(42,130,123,0)   72%);
+      animation: sunPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes sunPulse {
+      0%,100% { transform: scale(1);    opacity: .9; }
+      50%     { transform: scale(1.08); opacity: 1;  }
+    }
+
+    /* Stars twinkling */
+    .stars { position: absolute; inset: 0; pointer-events: none; }
+    .star {
+      position: absolute; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--colorPrimary); opacity: 0;
+      animation: twinkle 3.2s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0;   transform: scale(.6); }
+      50%      { opacity: .55; transform: scale(1);  }
+    }
+
+    /* Skylines (origin left, destination right) */
+    .skyline { position: absolute; inset: 0; pointer-events: none; }
+    .skyline svg { width: 100%; height: 100%; display: block; }
+    .skyline .city-back  { fill: var(--colorPrimary); opacity: .14; }
+    .skyline .city-front { fill: var(--colorPrimary); opacity: .24; }
+    .skyline .window     { fill: var(--colorTextWhite); }
+    .skyline .window.b1  { animation: blink 2.6s ease-in-out  .3s infinite; }
+    .skyline .window.b2  { animation: blink 3.1s ease-in-out 1.1s infinite; }
+    .skyline .window.b3  { animation: blink 2.4s ease-in-out 1.6s infinite; }
+    .skyline .window.b4  { animation: blink 2.9s ease-in-out 2.2s infinite; }
+    .skyline .window.b5  { animation: blink 3.4s ease-in-out  .7s infinite; }
+    @keyframes blink {
+      0%,100% { opacity: 1;   }
+      50%     { opacity: .25; }
+    }
+
+    /* Cloud parallax (white, drifting right-to-left at different speeds) */
+    .clouds { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .cloud  { position: absolute; will-change: transform; animation: drift linear infinite; }
+    .cloud svg { display: block; fill: #fff; }
+    .cloud.back  { animation-duration: 44s; opacity: .55; }
+    .cloud.mid   { animation-duration: 28s; opacity: .8;  }
+    .cloud.front { animation-duration: 18s; opacity: .98; filter: drop-shadow(0 2px 4px rgba(5,73,70,.08)); }
+    @keyframes drift {
+      from { transform: translateX(560px); }
+      to   { transform: translateX(-200px); }
+    }
+
+    /* Flight path arc */
+    .flight-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .flight-path {
+      fill: none; stroke: url(#pathGrad); stroke-width: 2;
+      stroke-dasharray: 4 7; stroke-linecap: round;
+      opacity: 0;
+      animation: pathDraw 1s ease-out .7s forwards, pathDash 14s linear .7s infinite;
+    }
+    @keyframes pathDraw { to { opacity: 1; } }
+    @keyframes pathDash { to { stroke-dashoffset: -220; } }
+
+    /* Plane following path */
+    .plane-group {
+      position: absolute; top: 0; left: 0; width: 50px; height: 30px;
+      margin: -15px 0 0 -25px;
+      offset-path: path('M 70 152 Q 260 -10 446 90');
+      offset-rotate: auto;
+      offset-anchor: 50% 50%;
+      animation: planeFly 6s cubic-bezier(.45,.05,.55,.95) 1.5s infinite;
+      opacity: 0; z-index: 7;
+    }
+    @keyframes planeFly {
+      0%, 100% { offset-distance: 0%;   opacity: 0; }
+      4%       { opacity: 1; }
+      90%      { offset-distance: 95%;  opacity: 1; }
+      96%      { offset-distance: 100%; opacity: 0; }
+    }
+    .plane-svg { width: 50px; height: 30px; color: var(--colorPrimaryActive); filter: drop-shadow(0 5px 8px rgba(5,73,70,.28)); }
+    .trail {
+      position: absolute; top: 14px; left: -32px;
+      width: 34px; height: 3px; border-radius: 2px;
+      background: linear-gradient(to right, transparent 0%, rgba(42,130,123,.55) 100%);
+      opacity: .9;
+    }
+
+    /* ── DE / ES flag pins — Primary gradient (Foundation gradient style) ──
+       Both medallions filled with the Primary gradient, distinguished by depth
+       and the country code overlay. */
+    .pin {
+      position: absolute; display: flex; flex-direction: column; align-items: center;
+      opacity: 0; transform: translateY(-14px) scale(.4);
+      animation: pinDrop .55s cubic-bezier(.2,1.5,.4,1) forwards;
+      z-index: 3;
+    }
+    .pin.origin      { left: 50px;  top: 132px; animation-delay: 1.05s; }
+    .pin.destination { right: 50px; top: 72px;  animation-delay: 1.35s; }
+    @keyframes pinDrop {
+      0%   { opacity: 0; transform: translateY(-18px) scale(.4); }
+      60%  { opacity: 1; transform: translateY(3px)   scale(1.08); }
+      100% { opacity: 1; transform: translateY(0)     scale(1); }
+    }
+    .pin-flag {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2.5px solid var(--colorTextWhite);
+      box-shadow: 0 4px 12px rgba(5,73,70,.28);
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    /* DE: dark Primary gradient (origin — established) */
+    .pin-flag.de {
+      background: linear-gradient(180deg, var(--colorPrimaryActive) 0%, var(--colorPrimary) 100%);
+    }
+    /* ES: lighter Primary gradient (destination — new horizon) */
+    .pin-flag.es {
+      background: linear-gradient(180deg, var(--colorPrimary) 0%, var(--colorPrimaryBorder) 100%);
+    }
+    .pin-code {
+      font-family: var(--fontFamily);
+      font-size: 11px; font-weight: 800;
+      letter-spacing: .5px;
+      color: var(--colorTextWhite);
+      text-shadow: 0 1px 2px rgba(5,73,70,.4);
+      pointer-events: none;
+    }
+
+    .pin-stem {
+      width: 2px; height: 7px; background: var(--colorTextWhite);
+      margin-top: -1px; border-radius: 0 0 2px 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.18);
+    }
+    .pin-shadow {
+      width: 22px; height: 5px; border-radius: 50%;
+      background: rgba(5,73,70,.18); margin-top: 4px;
+      animation: shadowPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes shadowPulse {
+      0%,100% { transform: scaleX(.8); opacity: .5; }
+      50%     { transform: scaleX(1.1); opacity: .85; }
+    }
+
+    /* Arrival confetti */
+    .burst { position: absolute; right: 65px; top: 82px; width: 0; height: 0; pointer-events: none; z-index: 4; }
+    .burst span {
+      position: absolute; width: 6px; height: 6px; border-radius: 1px;
+      opacity: 0;
+      animation: burstPop 6s cubic-bezier(.2,.7,.3,1) 1.5s infinite;
+    }
+    .burst span:nth-child(1) { background: var(--colorPrimary);       --bx: -26px; --by: -30px; --br: -45deg; }
+    .burst span:nth-child(2) { background: var(--colorPrimaryBorder); --bx:  10px; --by: -36px; --br:  25deg; }
+    .burst span:nth-child(3) { background: var(--colorPrimaryHover);  --bx:  32px; --by: -16px; --br:  60deg; }
+    .burst span:nth-child(4) { background: var(--colorPrimaryBorder); --bx: -32px; --by:  -6px; --br: -75deg; }
+    .burst span:nth-child(5) { background: var(--colorPrimary);       --bx:  20px; --by: -42px; --br:  35deg; border-radius: 50%; }
+    .burst span:nth-child(6) { background: var(--colorPrimaryActive); --bx: -14px; --by: -42px; --br: -20deg; border-radius: 50%; }
+    .burst span:nth-child(7) { background: var(--colorPrimaryBorder); --bx:  -6px; --by: -22px; --br:  10deg; }
+    .burst span:nth-child(8) { background: var(--colorPrimaryHover);  --bx:  26px; --by:   4px; --br:  55deg; }
+    @keyframes burstPop {
+      0%, 86%  { opacity: 0; transform: translate(0,0) rotate(0) scale(.3); }
+      90%      { opacity: 1; transform: translate(0,0) rotate(0) scale(1); }
+      97%      { opacity: .9; transform: translate(var(--bx), var(--by)) rotate(var(--br)) scale(.95); }
+      100%     { opacity: 0; transform: translate(calc(var(--bx) * 1.15), calc(var(--by) + 10px)) rotate(var(--br)) scale(.7); }
+    }
+
+    /* Destination ripples on arrival */
+    .dest-ripple {
+      position: absolute; right: 50px; top: 72px;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--colorPrimary);
+      opacity: 0; pointer-events: none;
+      animation: ripple 6s ease-out 1.5s infinite;
+      z-index: 2;
+    }
+    .dest-ripple.r2 { animation-delay: 1.68s; }
+    @keyframes ripple {
+      0%, 84%  { opacity: 0;   transform: scale(.7);  }
+      88%      { opacity: .85; transform: scale(.95); }
+      99%      { opacity: 0;   transform: scale(2.8); }
+      100%     { opacity: 0; }
+    }
+
+    /* Visa stamp slam (PERMANENT APPROVED) */
+    .il-stamp {
+      position: absolute;
+      top: 32px; left: 50%;
+      width: 78px; height: 78px;
+      margin-left: -39px;
+      opacity: 0;
+      transform-origin: center;
+      animation: stampSlam 6s ease-out 1.5s infinite;
+      z-index: 8;
+      pointer-events: none;
+    }
+    .il-stamp svg { width: 100%; height: 100%; display: block; }
+    @keyframes stampSlam {
+      0%, 36% { opacity: 0;  transform: scale(2.4) rotate(-18deg); }
+      40%     { opacity: 1;  transform: scale(.92) rotate(8deg);   }
+      44%     { opacity: 1;  transform: scale(1.05) rotate(12deg); }
+      48%     { opacity: 1;  transform: scale(1)   rotate(12deg);  }
+      78%     { opacity: 1;  transform: scale(1)   rotate(12deg);  }
+      86%     { opacity: 0;  transform: scale(1)   rotate(12deg);  }
+      100%    { opacity: 0; }
+    }
+
+    /* Chip in hero (WorkFlex Chip) */
+    .chip-hero {
+      position: absolute; top: 18px; left: 20px; z-index: 25;
+      background: var(--colorBgCard);
+      box-shadow: 0 4px 14px rgba(5,73,70,.18), 0 1px 2px rgba(0,0,0,.04);
+      opacity: 0; transform: translateY(-8px);
+      animation: chipIn .5s cubic-bezier(.2,1.4,.4,1) .55s forwards;
+    }
+    .chip-hero svg { animation: spinIco 5s linear infinite; }
+    @keyframes chipIn  { to { opacity: 1; transform: translateY(0); } }
+    @keyframes spinIco { to { transform: rotate(360deg); } }
+
+    /* ════════════════ BODY ════════════════ */
+    .body { padding: 24px 28px 8px; }
+    .h1 {
+      font-size: 22px; font-weight: 700; color: var(--colorText); line-height: 1.25; letter-spacing: -.3px;
+      opacity: 0; transform: translateY(8px);
+      animation: fadeUp .5s ease-out .6s forwards;
+    }
+    .h1 .accent { color: var(--colorPrimary); }
+    .lede {
+      margin-top: 8px; font-size: var(--fontSize); color: var(--colorTextSecondary); line-height: 1.55;
+      opacity: 0; transform: translateY(8px);
+      animation: fadeUp .5s ease-out .75s forwards;
+    }
+    .lede .chip { vertical-align: 1px; margin: 0 2px; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .features { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .feature {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px; border-radius: var(--borderRadiusM);
+      background: var(--colorBgElevated); border: 1px solid var(--colorBorderSecondary);
+      opacity: 0; transform: translateX(-10px);
+      animation: featIn .45s ease-out forwards;
+    }
+    .feature:nth-child(1) { animation-delay: .9s;  }
+    .feature:nth-child(2) { animation-delay: 1.05s; }
+    .feature:nth-child(3) { animation-delay: 1.2s; }
+    @keyframes featIn { to { opacity: 1; transform: translateX(0); } }
+    .feature-icon {
+      width: 38px; height: 38px; border-radius: var(--borderRadiusS);
+      background: linear-gradient(180deg, var(--colorPrimary) 0%, var(--colorPrimaryActive) 100%);
+      color: var(--colorTextWhite);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(5,73,70,.22);
+    }
+    .feature-icon svg { width: 20px; height: 20px; fill: var(--colorTextWhite); }
+    .feature-title { font-size: 13px; font-weight: 600; color: var(--colorText); line-height: 1.3; }
+    .feature-sub { margin-top: 2px; font-size: 12px; color: var(--colorTextSecondary); line-height: 1.4; }
+
+    .footer {
+      margin-top: 22px; padding: 18px 28px 24px;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      border-top: 1px solid var(--colorBorderSecondary);
+      opacity: 0;
+      animation: fadeIn .4s ease-out 1.35s forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* Footer hint — explains where Permanent Transfer lives after dismiss */
+    .footer-hint {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: var(--colorTextTertiary);
+      line-height: 1.45; max-width: 260px;
+    }
+    .footer-hint svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; color: var(--colorPrimary); }
+    .footer-hint strong { color: var(--colorTextSecondary); font-weight: 600; }
+    /* WorkFlex Button — Primary, Default size (Components key e4da04293f5af155e1788d64d25eb0492680cc1f) */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      height: 40px; padding: 0 18px;
+      border-radius: var(--borderRadiusS);
+      background: var(--colorPrimary); color: var(--colorTextWhite); border: 0;
+      font-family: var(--fontFamily); font-size: var(--fontSize); font-weight: var(--fontWeightStrong);
+      line-height: 1; letter-spacing: 0;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-primary:hover    { background: var(--colorPrimaryHover); }
+    .btn-primary:active   { background: var(--colorPrimaryActive); }
+    .btn-primary:focus-visible { outline: 2px solid var(--colorPrimaryBorder); outline-offset: 2px; }
+    .btn-primary svg { width: 14px; height: 14px; }
+
+    /* ════════════════ MESSAGE (WorkFlex Message — Success variant) ════════════════ */
+    /* Components key: 1b0b803eff337c36dd8a694bcd7c9f2118ec5458
+       Tokens: colorPrimary bg, colorTextWhite fg, borderRadiusM, fontFamily, fontSize, boxShadowSecondary */
+    .message {
+      position: absolute;
+      top: 32px; left: 50%;
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 12px 22px 12px 16px;
+      border-radius: var(--borderRadiusM);
+      background: var(--colorPrimary);
+      color: var(--colorTextWhite);
+      box-shadow: var(--boxShadowSecondary);
+      font-family: var(--fontFamily);
+      font-size: var(--fontSize); font-weight: 500;
+      line-height: 1.4;
+      z-index: 100;
+      opacity: 0;
+      transform: translate(-50%, -28px) scale(.92);
+      transition: opacity .4s ease-out, transform .5s cubic-bezier(.2, 1.4, .4, 1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .message.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .message-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--colorTextWhite);
+      color: var(--colorPrimary);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .message-icon svg { width: 14px; height: 14px; }
+    .message-text strong { font-weight: var(--fontWeightStrong); }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ════════════════ BACKGROUND DASHBOARD ════════════════ -->
+    <div class="bg-dashboard">
+      <aside class="bg-nav">
+        <div class="bg-nav-logo-row">
+          <div class="bg-nav-logo-mark">P</div>
+          <div class="bg-nav-wordmark">Persomio</div>
+          <div class="bg-nav-demo">Demo</div>
+          <div class="bg-nav-hamburger"><span></span><span></span><span></span></div>
+        </div>
+        <div class="bg-nav-section">Admin space <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg></div>
+        <div class="bg-nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="6" height="6"/><rect x="8.5" y="1.5" width="6" height="6"/><rect x="1.5" y="8.5" width="6" height="6"/><rect x="8.5" y="8.5" width="6" height="6"/></svg>Team requests</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="9" width="3" height="5"/><rect x="6.5" y="5" width="3" height="9"/><rect x="11.5" y="2" width="3" height="12"/></svg>Analytics</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/></svg>Employee management</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></svg>Company settings</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="12" height="8" rx="1"/><path d="M5 6V4a3 3 0 016 0v2"/></svg>My travellers</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11"/><path d="M2 6h12M6 1.5v3M10 1.5v3"/></svg>Travel calendar</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5L1 14h14L8 1.5z"/><path d="M8 6v3.5M8 11.5v.5"/></svg>SOS center</div>
+        <div class="bg-nav-section">My workspace <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg></div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h7l4 4v9H3z"/><path d="M10 2v4h4"/></svg>My requests</div>
+        <div class="bg-nav-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3z"/><path d="M6 5h4M6 8h4M6 11h3"/></svg>Policy overview</div>
+        <div class="bg-nav-spacer"></div>
+        <div class="bg-nav-upgrade"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2.3 5.6L17 7.2l-4.4 3.9L14 17 9 14.2 4 17l1.4-5.9L1 7.2l5.7-.6z"/></svg><div><div class="bg-nav-upgrade-text">Upgrade Plan</div><div class="bg-nav-upgrade-sub">Unlock services</div></div></div>
+        <div class="bg-nav-user"><div class="bg-nav-avatar">AB</div><div class="bg-nav-user-name">Alex Bandet</div></div>
+        <div class="bg-nav-brand"><div class="bg-nav-brand-mark"></div><div class="bg-nav-brand-name">WorkFlex</div></div>
+      </aside>
+
+      <main class="bg-main">
+        <div class="bg-main-header">
+          <div><div class="bg-main-eyebrow">HR</div><div class="bg-main-title">Employee requests</div></div>
+          <div class="bg-actions">
+            <button class="bg-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14l5-5M9 7l5-5M5 11l3-3M7 3l4 4"/></svg>Request visa</button>
+            <button class="bg-btn primary">Request a trip <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l4 4 4-4"/></svg></button>
+          </div>
+        </div>
+        <div class="bg-tabs">
+          <div class="bg-tab"><svg class="tab-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l4-4 4 4-4 4z"/><path d="M4 12l4 2 4-2"/></svg>Workation <span class="tab-count">21</span></div>
+          <div class="bg-tab active"><svg class="tab-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="10" rx="1"/><path d="M5 4V2.5a1 1 0 011-1h4a1 1 0 011 1V4"/></svg>Business trip <span class="tab-count">21</span></div>
+          <div class="bg-tab"><svg class="tab-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 11l3-3 5 5-3 3z"/><path d="M9 3l4 4-2 2-4-4z"/></svg>Assignment <span class="tab-count">21</span></div>
+          <div class="bg-tab locked"><svg class="tab-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>Permanent transfer <span class="chip sm"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1.5Q8 6 12.5 7Q8 8 7 12.5Q6 8 1.5 7Q6 6 7 1.5Z"/></svg>New</span></div>
+        </div>
+        <div class="bg-filters">
+          <div class="filter-chip active">All requests <span class="num">231</span></div>
+          <div class="filter-chip">Attention required <span class="num">12</span></div>
+          <div class="filter-chip">ETA required <span class="num">12</span></div>
+          <div class="filter-chip">Pending additional information <span class="num">12</span></div>
+        </div>
+        <div class="bg-table">
+          <div class="bg-row header"><div>Employee</div><div>Request ID</div><div>Origin</div><div>Destination</div><div>Start</div><div>End</div><div>Compliance</div></div>
+          <div class="bg-row"><div>Eva Silva</div><div>W-2H8NEG</div><div>🇱🇺 Luxembourg</div><div>🇫🇷 France</div><div>01. Apr 2024</div><div>12. Apr 2024</div><div>● Pending</div></div>
+          <div class="bg-row"><div>Artsiom Gruber</div><div>B-DRY7C6</div><div>🇸🇮 Slovenia</div><div>🇧🇪 Belgium</div><div>01. Apr 2024</div><div>14. Jun 2024</div><div>● Completed</div></div>
+          <div class="bg-row"><div>Bence Smith</div><div>W-2H8NEG</div><div>🇮🇹 Italy</div><div>🇨🇴 Colombia</div><div>04. Apr 2024</div><div>12. May 2024</div><div>● In progress</div></div>
+          <div class="bg-row"><div>Mia Korhonen</div><div>B-DRY7C6</div><div>🇭🇷 Croatia</div><div>🇦🇱 Albania</div><div>04. Apr 2024</div><div>20. Apr 2024</div><div>ESTA required</div></div>
+          <div class="bg-row"><div>Amina Johansson</div><div>B-DRY7C6</div><div>🇱🇹 Lithuania</div><div>🇩🇰 Denmark</div><div>16. Apr 2024</div><div>12. May 2024</div><div>▲ Attention</div></div>
+          <div class="bg-row"><div>Maria Petrović</div><div>W-2H8NEG</div><div>🇸🇰 Slovakia</div><div>🇳🇱 Netherlands</div><div>16. Apr 2024</div><div>18. May 2024</div><div>● Cancelled</div></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ════════════════ SCRIM ════════════════ -->
+    <div class="scrim"></div>
+
+    <!-- ════════════════ SUCCESS MESSAGE (WorkFlex Message — Success variant) ════════════════ -->
+    <div class="message" id="successMsg" role="status" aria-live="polite">
+      <div class="message-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8.5l2.5 2.5L12 5.5"/>
+        </svg>
+      </div>
+      <div class="message-text">You're in! Welcome to the <strong>Permanent Transfer</strong> beta.</div>
+    </div>
+
+    <!-- ════════════════ MODAL ════════════════ -->
+    <div class="modal-wrap">
+      <div class="modal" role="dialog" aria-labelledby="ptt-title">
+
+        <button class="modal-close" aria-label="Close">
+          <!-- Components Icon/sm — close glyph -->
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 2 L12 12 M12 2 L2 12"/>
+          </svg>
+        </button>
+
+        <!-- ════════════════ HERO: SKY SCENE ════════════════ -->
+        <div class="hero">
+
+          <!-- New chip -->
+          <div class="chip chip-hero">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1.5Q8 6 12.5 7Q8 8 7 12.5Q6 8 1.5 7Q6 6 7 1.5Z"/></svg>
+            New
+          </div>
+
+          <!-- Sun glow (warm halo) -->
+          <div class="sun"></div>
+
+          <!-- Twinkling stars -->
+          <div class="stars">
+            <span class="star" style="top: 26px;  left: 110px; animation-delay: .2s;"></span>
+            <span class="star" style="top: 42px;  left: 200px; animation-delay: 1.1s;"></span>
+            <span class="star" style="top: 18px;  left: 280px; animation-delay: 1.8s;"></span>
+            <span class="star" style="top: 60px;  left: 360px; animation-delay: .6s;"></span>
+            <span class="star" style="top: 34px;  left: 430px; animation-delay: 2.4s;"></span>
+            <span class="star" style="top: 90px;  left: 250px; animation-delay: 1.5s;"></span>
+          </div>
+
+          <!-- Skylines (origin & destination cities) -->
+          <div class="skyline">
+            <svg viewBox="0 0 520 240" preserveAspectRatio="none">
+              <!-- Origin (left, back layer) -->
+              <g class="city-back">
+                <rect x="0"   y="180" width="22" height="60"/>
+                <rect x="22"  y="168" width="16" height="72"/>
+                <rect x="38"  y="186" width="20" height="54"/>
+              </g>
+              <!-- Origin (left, front layer) -->
+              <g class="city-front">
+                <rect x="0"   y="190" width="18" height="50"/>
+                <rect x="18"  y="172" width="22" height="68"/>
+                <rect x="40"  y="184" width="16" height="56"/>
+                <rect x="56"  y="160" width="14" height="80"/>
+                <rect x="60"  y="146" width="3"  height="14"/>
+                <rect x="70"  y="178" width="20" height="62"/>
+                <rect x="90"  y="170" width="18" height="70"/>
+                <rect x="108" y="186" width="16" height="54"/>
+                <rect x="124" y="178" width="22" height="62"/>
+                <rect class="window b1" x="26" y="180" width="2.5" height="2.5"/>
+                <rect class="window b2" x="32" y="186" width="2.5" height="2.5"/>
+                <rect class="window b3" x="62" y="170" width="2.5" height="2.5"/>
+                <rect class="window b4" x="78" y="190" width="2.5" height="2.5"/>
+                <rect class="window b5" x="96" y="178" width="2.5" height="2.5"/>
+              </g>
+              <!-- Destination (right, back layer) -->
+              <g class="city-back">
+                <rect x="380" y="178" width="20" height="62"/>
+                <rect x="500" y="172" width="20" height="68"/>
+              </g>
+              <!-- Destination (right, front layer) -->
+              <g class="city-front">
+                <rect x="370" y="186" width="18" height="54"/>
+                <rect x="388" y="168" width="20" height="72"/>
+                <rect x="408" y="182" width="14" height="58"/>
+                <rect x="422" y="160" width="16" height="80"/>
+                <rect x="438" y="178" width="20" height="62"/>
+                <rect x="458" y="150" width="18" height="90"/>
+                <rect x="462" y="138" width="3"  height="12"/>
+                <rect x="476" y="172" width="22" height="68"/>
+                <rect x="498" y="186" width="18" height="54"/>
+                <rect class="window b2" x="394" y="178" width="2.5" height="2.5"/>
+                <rect class="window b3" x="428" y="172" width="2.5" height="2.5"/>
+                <rect class="window b1" x="464" y="160" width="2.5" height="2.5"/>
+                <rect class="window b5" x="482" y="184" width="2.5" height="2.5"/>
+                <rect class="window b4" x="446" y="190" width="2.5" height="2.5"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Cloud parallax -->
+          <div class="clouds">
+            <div class="cloud back" style="top: 22px;  animation-delay: -8s;">
+              <svg width="70" height="22" viewBox="0 0 70 22"><ellipse cx="14" cy="14" rx="14" ry="7"/><ellipse cx="34" cy="10" rx="16" ry="10"/><ellipse cx="54" cy="14" rx="14" ry="7"/></svg>
+            </div>
+            <div class="cloud back" style="top: 64px;  animation-delay: -28s;">
+              <svg width="54" height="18" viewBox="0 0 54 18"><ellipse cx="12" cy="10" rx="12" ry="6"/><ellipse cx="28" cy="8"  rx="14" ry="8"/><ellipse cx="44" cy="11" rx="10" ry="6"/></svg>
+            </div>
+            <div class="cloud mid"  style="top: 36px;  animation-delay: -6s;">
+              <svg width="90" height="28" viewBox="0 0 90 28"><ellipse cx="18" cy="18" rx="18" ry="9"/><ellipse cx="42" cy="12" rx="20" ry="12"/><ellipse cx="68" cy="16" rx="18" ry="10"/><ellipse cx="82" cy="20" rx="8" ry="6"/></svg>
+            </div>
+            <div class="cloud mid"  style="top: 100px; animation-delay: -19s;">
+              <svg width="74" height="24" viewBox="0 0 74 24"><ellipse cx="14" cy="14" rx="14" ry="8"/><ellipse cx="34" cy="10" rx="18" ry="10"/><ellipse cx="58" cy="14" rx="14" ry="8"/></svg>
+            </div>
+            <div class="cloud front" style="top: 8px;   animation-delay: -3s;">
+              <svg width="110" height="34" viewBox="0 0 110 34"><ellipse cx="22" cy="22" rx="22" ry="11"/><ellipse cx="54" cy="14" rx="24" ry="14"/><ellipse cx="84" cy="20" rx="22" ry="12"/><ellipse cx="102" cy="24" rx="8" ry="6"/></svg>
+            </div>
+            <div class="cloud front" style="top: 138px; animation-delay: -11s;">
+              <svg width="84" height="26" viewBox="0 0 84 26"><ellipse cx="16" cy="16" rx="16" ry="9"/><ellipse cx="40" cy="11" rx="20" ry="11"/><ellipse cx="66" cy="15" rx="16" ry="9"/></svg>
+            </div>
+          </div>
+
+          <!-- Flight path -->
+          <svg class="flight-svg" viewBox="0 0 520 240" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"   stop-color="#2A827B" stop-opacity="0"/>
+                <stop offset="20%"  stop-color="#2A827B" stop-opacity=".65"/>
+                <stop offset="80%"  stop-color="#2A827B" stop-opacity=".65"/>
+                <stop offset="100%" stop-color="#2A827B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="flight-path" d="M 70 152 Q 260 -10 446 90"/>
+          </svg>
+
+          <!-- Plane -->
+          <div class="plane-group">
+            <div class="trail"></div>
+            <svg class="plane-svg" viewBox="0 0 50 30" fill="currentColor">
+              <ellipse cx="26" cy="15" rx="20" ry="3.2"/>
+              <path d="M 24 13 L 12 4 L 18 13 Z"/>
+              <path d="M 24 17 L 12 26 L 18 17 Z"/>
+              <path d="M 6 14 L 1 8 L 1 16 Z"/>
+              <ellipse cx="42" cy="14.5" rx="3" ry="1.6" fill="rgba(255,255,255,.55)"/>
+              <circle cx="45.5" cy="15" r="1.5" fill="rgba(255,255,255,.35)"/>
+            </svg>
+          </div>
+
+          <!-- Origin pin: Germany (DE) — dark Primary gradient -->
+          <div class="pin origin">
+            <div class="pin-flag de">
+              <span class="pin-code">DE</span>
+            </div>
+            <div class="pin-stem"></div>
+            <div class="pin-shadow"></div>
+          </div>
+
+          <!-- Destination pin: Spain (ES) — light Primary gradient -->
+          <div class="pin destination">
+            <div class="pin-flag es">
+              <span class="pin-code">ES</span>
+            </div>
+            <div class="pin-stem"></div>
+            <div class="pin-shadow"></div>
+          </div>
+
+          <!-- Destination ripple rings -->
+          <div class="dest-ripple r1"></div>
+          <div class="dest-ripple r2"></div>
+
+          <!-- Confetti burst on arrival -->
+          <div class="burst">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+
+          <!-- Visa stamp slam (PERMANENT APPROVED) — dark teal -->
+          <div class="il-stamp">
+            <svg viewBox="0 0 78 78">
+              <circle cx="39" cy="39" r="33" fill="none" stroke="#054946" stroke-width="2.2" stroke-dasharray="3 2.5"/>
+              <circle cx="39" cy="39" r="27" fill="none" stroke="#054946" stroke-width="1" opacity="0.5"/>
+              <text x="39" y="36" font-family="Figtree" font-size="8" font-weight="800" fill="#054946" text-anchor="middle" letter-spacing=".5">PERMANENT</text>
+              <text x="39" y="47" font-family="Figtree" font-size="6.6" font-weight="700" fill="#054946" text-anchor="middle" letter-spacing=".5">APPROVED</text>
+            </svg>
+          </div>
+
+        </div>
+
+        <!-- ════════════════ BODY ════════════════ -->
+        <div class="body">
+          <h2 class="h1" id="ptt-title">Introducing <span class="accent">Permanent Transfer</span></h2>
+          <p class="lede">
+            Move employees across borders — for good.
+            <span class="chip" style="display: inline-flex;">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 1.5Q8 6 12.5 7Q8 8 7 12.5Q6 8 1.5 7Q6 6 7 1.5Z"/></svg>
+              Beta
+            </span>
+            Join early access to manage long-term relocations alongside your business trips, workations, and assignments.
+          </p>
+
+          <div class="features">
+            <div class="feature">
+              <div class="feature-icon">
+                <!-- Globe (filled, Components Icon/md) -->
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="feature-title">Global mobility, end-to-end</div>
+                <div class="feature-sub">From offer letter to onboarding in the new country — every step tracked.</div>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">
+                <!-- Shield with check (filled, Components Icon/md) -->
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 2 4 5v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V5l-8-3zm-2 14-4-4 1.4-1.4L10 13.2l6.6-6.6L18 8l-8 8z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="feature-title">Visa &amp; compliance built in</div>
+                <div class="feature-sub">Work permits, tax residency and right-to-work — handled by our local experts.</div>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">
+                <!-- Document (filled, Components Icon/md) -->
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="feature-title">Payroll &amp; contracts ready</div>
+                <div class="feature-sub">Local employment contracts and payroll set up for the destination country.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p class="footer-hint">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="5.5"/>
+              <path d="M7 9.5V7M7 4.5h.01"/>
+            </svg>
+            <span>You can also find it later in your <strong>Permanent transfer</strong> tab</span>
+          </p>
+          <button class="btn-primary">
+            Join the beta
+            <!-- Components Icon/sm — arrow right glyph -->
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7h8M7 3l4 4-4 4"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const app        = document.querySelector('.app');
+    const closeBtn   = document.querySelector('.modal-close');
+    const scrim      = document.querySelector('.scrim');
+    const lockedTab  = document.querySelector('.bg-tab.locked');
+    const joinBtn    = document.querySelector('.btn-primary');
+    const successMsg = document.getElementById('successMsg');
+
+    let msgTimer;
+    function dismiss() { app.classList.add('dismissed'); }
+    function reopen()  { app.classList.remove('dismissed'); successMsg.classList.remove('show'); clearTimeout(msgTimer); }
+    function joinBeta() {
+      dismiss();
+      successMsg.classList.add('show');
+      clearTimeout(msgTimer);
+      msgTimer = setTimeout(() => successMsg.classList.remove('show'), 4500);
+    }
+
+    closeBtn.addEventListener('click', dismiss);
+    scrim.addEventListener('click', dismiss);
+    lockedTab.addEventListener('click', reopen);
+    joinBtn.addEventListener('click', joinBeta);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') dismiss(); });
+  </script>
+</body>
+</html>
