@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WorkFlex — Employee requests</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+:root {
+  /* ============ Foundation tokens (SdBS43a2H2Wkx2yBw6ZrZU) ============ */
+
+  /* Colors / Semantic / Primary — used for green CTA, active states */
+  --colorPrimary: #2A827B;                /* Colors/Semantic/Primary/colorPrimary */
+  --colorPrimaryBg: #F2FAF8;              /* Colors/Semantic/Primary/colorPrimaryBg */
+  --colorPrimaryBgHover: #E6F4F1;         /* Colors/Semantic/Primary/colorPrimaryBgHover */
+  --colorPrimaryBorder: #62ABA3;          /* Colors/Semantic/Primary/colorPrimaryBorder */
+  --colorPrimaryHover: #136B65;           /* Colors/Semantic/Primary/colorPrimaryHover */
+  --colorPrimaryActive: #054946;          /* Colors/Semantic/Primary/colorPrimaryActive */
+  --colorPrimaryText: #2A827B;            /* Colors/Semantic/Primary/colorPrimaryText */
+  --colorPrimaryTextHover: #136B65;       /* Colors/Semantic/Primary/colorPrimaryTextHover */
+  --colorPrimaryTextActive: #054946;      /* Colors/Semantic/Primary/colorPrimaryTextActive */
+
+  /* Colors / Neutral / Text */
+  --colorText: #000000;                   /* Colors/Neutral/Text/colorText */
+  --colorTextSecondary: #5A6872;          /* Colors/Neutral/Text/colorTextSecondary */
+  --colorTextTertiary: #9BA8B0;           /* Colors/Neutral/Text/colorTextTertiary */
+  --colorTextWhite: #FFFFFF;              /* Colors/Neutral/Text/colorTextWhite */
+
+  /* Colors / Neutral / Background */
+  --colorBgBase: #F4F5F7;                 /* Colors/Neutral/Background/colorBgBase */
+  --colorBgCard: #FFFFFF;                 /* Colors/Neutral/Background/colorBgCard */
+  --colorBgElevated: #F9FAFB;             /* Colors/Neutral/Background/colorBgElevated */
+  --colorBgElevatedSecond: #F4F5F7;       /* Colors/Neutral/Background/colorBgElevatedSecond */
+  --colorBgChip: #F9FAFB;                 /* Button Compact Default fill */
+
+  /* Colors / Neutral / Border */
+  --colorBorder: #D9E2E8;                 /* Colors/Neutral/Border/colorBorder */
+  --colorBorderSecondary: #E8E8E8;        /* Colors/Neutral/Border/colorBorderSecondary */
+  --colorSeparator: #D9D9D9;              /* Button Compact Separator fill */
+
+  /* Colors / Semantic / Link */
+  --colorLink: #1B8CB1;                   /* Colors/Semantic/Link/colorLink */
+
+  /* Colors / Semantic / Error */
+  --colorError: #FF4D4F;                  /* Colors/Semantic/Error/colorError */
+  --colorErrorBg: #FFF6F6;                /* Colors/Semantic/Error/colorErrorBg */
+
+  /* Colors / Semantic / Warning */
+  --colorWarning: #F79A3E;                /* Colors/Semantic/Warning/colorWarning */
+  --colorWarningBg: #FFFAF4;              /* Colors/Semantic/Warning/colorWarningBg */
+  --colorWarningText: #6D2F03;            /* Colors/Semantic/Warning/colorWarningText */
+
+  /* Colors / Semantic / Info */
+  --colorInfo: #30A9CD;                   /* Colors/Semantic/Info/colorInfo */
+  --colorInfoBg: #F0FCFF;                 /* Colors/Semantic/Info/colorInfoBg */
+  --colorInfoBorder: #C5E7F0;             /* Colors/Semantic/Info/colorInfoBorder */
+
+  /* Components / Filter (Filters component) */
+  --filterBgDefault: #FFFFFF;             /* Components/Filter/Component/BgDefault */
+  --filterBgFilled: #2C3439;              /* Components/Filter/Component/BgFilled */
+
+  /* Typography */
+  --fontFamily: 'Figtree', -apple-system, sans-serif;
+  --fontSize: 14px;
+  --fontSizeSM: 12px;
+  --fontSizeLG: 16px;
+  --fontSizeXL: 20px;
+  --fontWeightStrong: 600;
+
+  /* Border radius */
+  --borderRadiusXXS: 2px;
+  --borderRadiusXS: 4px;
+  --borderRadiusS: 6px;
+  --borderRadiusM: 8px;
+  --borderRadiusL: 16px;
+
+  /* Elevation */
+  --boxShadow: 0 1px 2px rgba(0,0,0,.03), 0 1px 6px -1px rgba(0,0,0,.02), 0 2px 4px rgba(0,0,0,.02);
+  --boxShadowSecondary: 0 6px 16px rgba(0,0,0,.08), 0 3px 6px -4px rgba(0,0,0,.12), 0 9px 28px 8px rgba(0,0,0,.05);
+
+  /* AI accent (not in Foundation — page-level only for new feature highlights) */
+  --gradientPrimary: linear-gradient(135deg, #62ABA3 0%, #2A827B 50%, #054946 100%);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--fontFamily);
+  font-size: var(--fontSize);
+  color: var(--colorText);
+  background: var(--colorBgBase);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ============================================================
+   *Menu* — Components file 8QDSamuGxoBEMZy1q5l4Ot
+   Component set id: 3730:4543 · Status=Expanded variant id 3730:6565
+   Spec from Figma (Expanded variant):
+     Menu width 240px · fill colorBgBase (#F4F5F7)
+     Logo row: 240×63 · padding 16/12 · contains wordmark + tag + icons
+     Nav item: 232×40 · padding 0 16 0 24 · borderRadiusM (8) · gap 8 · 14px Regular(400)
+     Nav item active: fill colorBorderSecondary (#E8E8E8) · text black · weight 600
+     Submenu title: 232×40 · padding 0 16 0 24 · 14px Bold · with chevron toggle
+============================================================ */
+.side-nav {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--colorBgBase);
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px;
+  overflow-y: auto;
+}
+.side-nav .logo-block {
+  padding: 16px 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.side-nav .logo-block .wordmark {
+  font-size: var(--fontSizeLG);
+  font-weight: 700;
+  color: var(--colorPrimary);
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+.side-nav .nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+/* Submenu Title — 14px Bold, 40 tall, 0 16 0 24 padding */
+.side-nav .group-title {
+  font-size: var(--fontSize);
+  font-weight: 700;
+  color: var(--colorText);
+  height: 40px;
+  padding: 0 16px 0 24px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--borderRadiusM);
+}
+/* Menu Item / Inline / Navigation Item */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 24px;
+  height: 40px;
+  border-radius: var(--borderRadiusM);
+  font-size: var(--fontSize);
+  font-weight: 400;
+  color: var(--colorText);
+  text-decoration: none;
+  transition: all 0.12s;
+  cursor: pointer;
+}
+.nav-item .ico {
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--colorTextSecondary);
+  flex-shrink: 0;
+}
+.nav-item .ico svg { width: 18px; height: 18px; }
+.nav-item .label { flex: 1; }
+.nav-item:hover { background: var(--colorBgElevated); }
+.nav-item.active {
+  background: var(--colorBorderSecondary);
+  color: var(--colorText);
+  font-weight: 600;
+}
+.nav-item.active .ico { color: var(--colorText); }
+.nav-item .count-pill {
+  font-size: var(--fontSizeSM);
+  background: var(--colorBgCard);
+  color: var(--colorTextSecondary);
+  padding: 1px 7px;
+  border-radius: 100px;
+  font-weight: 600;
+  min-width: 22px;
+  text-align: center;
+}
+.nav-item.active .count-pill {
+  background: var(--filterBgFilled);
+  color: white;
+}
+.side-nav .spacer { flex: 1; }
+.side-nav .user-block {
+  padding: 10px;
+  border-top: 1px solid var(--colorBorderSecondary);
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px;
+}
+.side-nav .user-block .ava {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--colorPrimaryBg);
+  color: var(--colorPrimary);
+  border: 1px solid var(--colorPrimaryBorder);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fontSize); font-weight: 600;
+  flex-shrink: 0;
+}
+.side-nav .user-block .who { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.side-nav .user-block .who .name {
+  font-size: var(--fontSize); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.side-nav .user-block .who .role {
+  font-size: var(--fontSizeSM); color: var(--colorTextSecondary);
+}
+
+.main-col {
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--colorBorderSecondary);
+  background: var(--colorBgCard);
+}
+.topbar .logo {
+  font-size: var(--fontSizeLG);
+  font-weight: 700;
+  color: var(--colorPrimary);
+}
+.user-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--colorBorder); border-radius: 100px;
+  font-size: var(--fontSize); background: var(--colorBgCard);
+}
+.user-pill .ava {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--colorPrimaryBg); color: var(--colorPrimary);
+  border: 1px solid var(--colorPrimaryBorder);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fontSizeSM); font-weight: 600;
+}
+
+/* Page */
+.page {
+  padding: 32px 28px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+.page-head h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--colorText);
+  letter-spacing: -0.01em;
+}
+.page-head .actions { display: flex; gap: 12px; align-items: center; }
+
+/* ============================================================
+   *Button* — Components file 8QDSamuGxoBEMZy1q5l4Ot
+   Component set id: 784:2294 · 144 variants
+   Spec from Figma (Default size · State=Default · Danger=False):
+     Default: 32 height · 0 12 padding · 8 radius (borderRadiusM) · 8 gap
+     Large:   40 height · 0 12 padding · 8 radius · 8 gap
+     Small:   24 height
+     Font: Figtree Bold (700) · 14px
+   Types:
+     Primary  → fill colorPrimary (#2A827B) · text white
+     Secondary→ fill colorBgElevated (#F9FAFB) · 1px stroke colorText (88%)
+     Tertiary → transparent · primary green text
+============================================================ */
+.btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--borderRadiusM);
+  font-family: var(--fontFamily);
+  font-size: var(--fontSize);
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center; gap: 8px;
+  justify-content: center;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn.lg { height: 40px; }
+.btn.sm { height: 24px; padding: 0 8px; }
+.btn.primary {
+  background: var(--colorPrimary);
+  color: var(--colorTextWhite);
+  border-color: var(--colorPrimary);
+}
+.btn.primary:hover {
+  background: var(--colorPrimaryHover);
+  border-color: var(--colorPrimaryHover);
+}
+.btn.primary:active {
+  background: var(--colorPrimaryActive);
+  border-color: var(--colorPrimaryActive);
+}
+.btn.secondary {
+  background: var(--colorBgElevated);
+  color: rgba(0,0,0,0.88);
+  border-color: rgba(0,0,0,0.88);
+}
+.btn.secondary:hover { color: var(--colorPrimary); border-color: var(--colorPrimary); }
+/* "outline" is a legacy alias — map to Secondary spec */
+.btn.outline {
+  background: var(--colorBgElevated);
+  color: rgba(0,0,0,0.88);
+  border-color: rgba(0,0,0,0.88);
+}
+.btn.outline:hover { color: var(--colorPrimary); border-color: var(--colorPrimary); }
+.btn.tertiary {
+  background: transparent;
+  color: var(--colorPrimary);
+  border-color: transparent;
+}
+.btn.tertiary:hover { color: var(--colorPrimaryHover); background: var(--colorPrimaryBg); }
+.btn svg { width: 16px; height: 16px; }
+
+/* Dropdown — WorkFlex Dropdown Menu */
+.dropdown-wrap { position: relative; }
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: var(--colorBgCard);
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadiusM);
+  box-shadow: var(--boxShadowSecondary);
+  padding: 8px 0;
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+}
+.dropdown-menu.open { display: flex; }
+.dropdown-group-title {
+  padding: 8px 16px 6px;
+  font-size: var(--fontSize);
+  font-weight: 700;
+  color: var(--colorText);
+  display: flex; align-items: center; gap: 8px;
+}
+.dropdown-item {
+  padding: 8px 16px;
+  font-size: var(--fontSize);
+  color: var(--colorText);
+  text-decoration: none;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.12s;
+}
+.dropdown-item:hover { background: var(--colorBgElevated); color: var(--colorPrimary); }
+.dropdown-item--feature {
+  font-weight: 700;
+  color: var(--colorText);
+  justify-content: space-between;
+}
+.dropdown-item--feature:hover { color: var(--colorPrimary); }
+.dropdown-divider {
+  height: 1px;
+  background: var(--colorBorderSecondary);
+  margin: 6px 0;
+}
+
+/* New chip — WorkFlex Chip with icon */
+.new-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--gradientPrimary);
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px 2px 6px;
+  border-radius: var(--borderRadiusXS);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.new-chip svg { width: 10px; height: 10px; fill: currentColor; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--colorBorderSecondary);
+  margin-bottom: 24px;
+}
+.tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-family: var(--fontFamily);
+  font-size: var(--fontSize);
+  color: var(--colorTextSecondary);
+  cursor: pointer;
+  position: relative;
+}
+.tab.active {
+  color: var(--colorPrimary);
+  font-weight: 600;
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: 16px; right: 16px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--colorPrimary);
+}
+.tab .count {
+  background: var(--colorBgChip);
+  color: var(--colorTextSecondary);
+  font-size: var(--fontSizeSM);
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.tab.active .count { background: var(--colorPrimary); color: white; }
+
+/* Filter row — WorkFlex Filters component */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+/* ============================================================
+   Filter chip — Button Compact Item
+   Component set: 6664:3260 (Filters page, Components file)
+   Variants: Default · Single · All · Single applied · multiple applied · All filters / selected
+   Spec from Figma (px):
+     height 32 · padding 0 8 · border-radius 6 (borderRadiusS) · gap 4
+     stroke 1px (default+all-filters) · no stroke (applied dark)
+     fill: BgDefault (#FFFFFF) / BgFilled (#2C3439)
+     count badge: 20×14 · 12px font · pill 12px radius · #FF4D4F fill
+============================================================ */
+.filter-chip {
+  height: 32px;
+  padding: 0 8px;
+  background: var(--filterBgDefault);
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadiusS);
+  font-family: var(--fontFamily);
+  font-size: var(--fontSize);
+  display: inline-flex; align-items: center; gap: 4px;
+  cursor: pointer;
+  color: var(--colorText);
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--colorPrimaryBorder); }
+.filter-chip .chev {
+  width: 16px; height: 16px;
+  color: var(--colorTextSecondary);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.filter-chip .chev svg { width: 12px; height: 12px; }
+.filter-chip .count {
+  height: 14px;
+  min-width: 20px;
+  padding: 0 4px;
+  font-size: var(--fontSizeSM);
+  background: var(--colorBgChip);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--colorTextSecondary);
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+/* Applied state — dark BgFilled, red badge, no stroke */
+.filter-chip.applied {
+  background: var(--filterBgFilled);
+  border-color: transparent;
+  color: white;
+  font-weight: 500;
+}
+/* All filters / selected variant — keeps the border */
+.filter-chip.applied.with-border {
+  border-color: var(--colorBorder);
+}
+.filter-chip.applied .count {
+  background: var(--colorError);
+  color: var(--colorBgElevated);
+  border: 1px solid var(--colorBgElevated);
+}
+.filter-chip.applied .x {
+  width: 16px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.85);
+}
+.filter-chip.applied .x:hover { color: white; }
+.filter-chip.applied .x svg { width: 12px; height: 12px; }
+
+.filter-spacer { flex: 1; }
+.filter-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadiusS);
+  background: var(--colorBgCard);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--colorTextSecondary);
+}
+.icon-btn:hover { border-color: var(--colorPrimary); color: var(--colorPrimary); }
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn .material-icons { font-size: 18px; }
+
+/* Search input — WorkFlex Input variant with leading search Material Icon */
+.search-wrap {
+  position: relative;
+  display: inline-block;
+}
+.search-wrap .material-icons {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--colorTextTertiary);
+  pointer-events: none;
+}
+.search-input {
+  height: 36px;
+  padding: 0 14px 0 38px;
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadiusS);
+  background: var(--colorBgCard);
+  font-family: var(--fontFamily); font-size: var(--fontSize);
+  width: 260px; outline: none;
+  color: var(--colorText);
+}
+.search-input:focus {
+  border-color: var(--colorPrimary);
+}
+
+/* Alert Banner / Status=Info — Components 8QDSamuGxoBEMZy1q5l4Ot · set 3162:993
+   Spec: 12-16px radius · 12px 20px padding · 12px gap · 14px text
+   Bg: colorInfoBg (#F0FAFF) · Border: light blue (#D0F4FF) · Icon: 16-20px Material filled */
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--colorInfoBg);
+  border: 1px solid #D0F4FF;
+  border-radius: var(--borderRadiusM);
+  padding: 12px 20px;
+  font-size: var(--fontSize);
+  color: var(--colorText);
+  margin-bottom: 16px;
+}
+.info-banner .ico {
+  width: 20px; height: 20px;
+  color: var(--colorInfo);
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.info-banner .ico .material-icons {
+  font-size: 20px;
+  color: var(--colorInfo);
+}
+
+/* Table */
+.table-card {
+  background: var(--colorBgCard);
+  border: 1px solid var(--colorBorder);
+  border-radius: var(--borderRadiusM);
+  overflow: hidden;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: var(--fontSizeSM);
+  font-weight: 600;
+  color: var(--colorTextSecondary);
+  background: var(--colorBgElevated);
+  border-bottom: 1px solid var(--colorBorderSecondary);
+  white-space: nowrap;
+}
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--colorBorderSecondary);
+  font-size: var(--fontSize);
+  color: var(--colorText);
+  vertical-align: middle;
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--colorBgElevated); }
+
+.country-cell { display: flex; align-items: center; gap: 8px; }
+.country-cell .flag { font-size: 18px; }
+/* *Tag* / Colorful — Components 8QDSamuGxoBEMZy1q5l4Ot · set 3363:6406
+   22px · 0 8 padding · 4px radius · 12px Regular · 4px gap · preset-tinted bg+text */
+.action-tag {
+  display: inline-flex; align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  background: var(--colorPrimaryBg);
+  color: var(--colorPrimary);
+  border-radius: var(--borderRadiusXS);
+  font-size: var(--fontSizeSM);
+  font-weight: 400;
+  line-height: 1;
+  margin-right: 4px;
+}
+/* Optional preset overrides (Special, Info, Warning, Error) */
+.action-tag.special { background: #F2F2FD; color: #3D3786; }
+.action-tag.info    { background: var(--colorInfoBg); color: var(--colorInfo); }
+.action-tag.warning { background: var(--colorWarningBg); color: var(--colorWarning); }
+.action-tag.error   { background: var(--colorErrorBg); color: var(--colorError); }
+.compliance {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--borderRadiusXS);
+  font-size: var(--fontSize);
+  font-weight: 500;
+}
+.compliance.attention {
+  background: var(--colorWarningBg);
+  color: var(--colorWarning);
+}
+.compliance.attention svg { width: 14px; height: 14px; }
+.compliance.completed {
+  background: var(--colorPrimaryBg);
+  color: var(--colorPrimary);
+}
+.compliance.completed svg { width: 14px; height: 14px; fill: currentColor; }
+
+.row-more {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--borderRadiusS);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--colorTextSecondary);
+}
+.row-more:hover { background: var(--colorBgElevated); color: var(--colorPrimary); }
+
+.employee-cell .name { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<aside class="side-nav">
+  <div class="logo-block">
+    <div class="wordmark">WorkFlex</div>
+  </div>
+
+  <div class="nav-group">
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><path d="M2 9l7-6 7 6v7H10v-5H8v5H2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+      <span class="label">Home</span>
+    </a>
+    <a class="nav-item active" href="/dashboard.html">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="currentColor"><rect x="2" y="6" width="14" height="10" rx="1"/><rect x="6" y="2" width="6" height="4" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span class="label">Employee requests</span>
+      <span class="count-pill">20</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 16c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <span class="label">Employees</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><path d="M3 3h12v12H3z" stroke="currentColor" stroke-width="1.5"/><path d="M3 7h12M7 3v12" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span class="label">Policies</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><path d="M2 14V6l5-3 4 2 5-3v8l-5 3-4-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+      <span class="label">Reports</span>
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="group-title">Tools</div>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><path d="M2 12l4-1 3-7 3 7 4 1-4 1-3 2-3-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+      <span class="label">Visa assistant</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <span class="label">Smart travel</span>
+    </a>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="nav-group">
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 7v3M9 12.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <span class="label">Help</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2M3.5 3.5l1.4 1.4M13.1 13.1l1.4 1.4M3.5 14.5l1.4-1.4M13.1 4.9l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      <span class="label">Settings</span>
+    </a>
+  </div>
+
+  <div class="user-block">
+    <span class="ava">ML</span>
+    <div class="who">
+      <span class="name">Maria López</span>
+      <span class="role">HR Manager</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main-col">
+
+<div class="page">
+
+  <div class="page-head">
+    <h1>Employee requests</h1>
+    <div class="actions">
+      <button class="btn secondary lg">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 11l4-1 3-7 3 7 4 1-4 1-3 2-3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Visa assistant
+      </button>
+      <div class="dropdown-wrap">
+        <button class="btn primary lg" id="requestTripBtn">
+          Request a trip
+          <svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="dropdown-menu" id="requestTripMenu">
+          <div class="dropdown-group-title">Workation</div>
+          <a class="dropdown-item" href="#">For me</a>
+          <a class="dropdown-item" href="#">For an employee</a>
+
+          <div class="dropdown-divider"></div>
+
+          <a class="dropdown-item dropdown-item--feature" href="/trip-request-ai-v3.html">
+            <span>Business travel</span>
+            <span class="new-chip">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0l1.5 4.5L14 6l-4.5 1.5L8 12 6.5 7.5 2 6l4.5-1.5L8 0z"/></svg>
+              New
+            </span>
+          </a>
+
+          <div class="dropdown-divider"></div>
+
+          <div class="dropdown-group-title">Assignments</div>
+          <a class="dropdown-item" href="#">New assignment</a>
+          <a class="dropdown-item" href="#">Add ongoing assignment</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a6 6 0 1 1 0 12 6 6 0 0 1 0-12zM8 5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Work from abroad <span class="count">120</span>
+    </button>
+    <button class="tab active">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="5" width="12" height="9" rx="1"/><rect x="5" y="2" width="6" height="3" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      Business travel <span class="count">261</span>
+    </button>
+    <button class="tab">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M11 5l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Assignments <span class="count">38</span>
+    </button>
+  </div>
+
+  <div class="filter-row">
+    <!-- "All" chip removed — implicit when nothing else is selected. Each chip toggles its filter on/off. -->
+    <button class="filter-chip applied">
+      Actions required <span class="count">20</span>
+      <span class="x"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg></span>
+    </button>
+    <button class="filter-chip">Attention required <span class="count">10</span></button>
+    <button class="filter-chip">ETA required <span class="count">7</span></button>
+    <button class="filter-chip">Pending info <span class="count">0</span></button>
+    <button class="filter-chip">Ongoing trips <span class="count">11</span></button>
+    <div class="filter-spacer"></div>
+    <div class="filter-actions">
+      <div class="search-wrap">
+        <span class="material-icons">search</span>
+        <input class="search-input" placeholder="Search by employee name" />
+      </div>
+      <button class="icon-btn" aria-label="Export">
+        <span class="material-icons">file_download</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="info-banner" role="status">
+    <span class="ico"><span class="material-icons">info</span></span>
+    Trips that require action are shown first. To see all requests, select the "All" filter.
+  </div>
+
+  <div class="table-card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Payroll country</th>
+          <th>Destination country</th>
+          <th>Start date</th>
+          <th>End date</th>
+          <th>Actions required</th>
+          <th>Compliance</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇩🇰</span> Denmark</div></td>
+          <td><div class="country-cell"><span class="flag">🇨🇭</span> Switzerland</div></td>
+          <td>21/05/2026</td>
+          <td>23/05/2026</td>
+          <td><span class="action-tag">Salary</span></td>
+          <td><span class="compliance attention"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1z" fill="currentColor"/><path d="M8 6v3" stroke="white" stroke-width="1.5"/><circle cx="8" cy="11" r="0.6" fill="white"/></svg>Attention</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇩🇰</span> Denmark</div></td>
+          <td><div class="country-cell"><span class="flag">🇫🇷</span> France</div></td>
+          <td>19/05/2026</td>
+          <td>31/05/2026</td>
+          <td><span class="action-tag">Health check</span></td>
+          <td><span class="compliance attention"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1z" fill="currentColor"/><path d="M8 6v3" stroke="white" stroke-width="1.5"/><circle cx="8" cy="11" r="0.6" fill="white"/></svg>Attention</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇨🇿</span> Czech Republic</div></td>
+          <td><div class="country-cell"><span class="flag">🇩🇪</span> Germany</div></td>
+          <td>17/05/2026</td>
+          <td>24/05/2026</td>
+          <td><span class="action-tag">Cost recharge</span><span class="action-tag">Payroll</span></td>
+          <td><span class="compliance attention"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1z" fill="currentColor"/><path d="M8 6v3" stroke="white" stroke-width="1.5"/><circle cx="8" cy="11" r="0.6" fill="white"/></svg>Attention</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇪🇬</span> Egypt</div></td>
+          <td><div class="country-cell"><span class="flag">🇺🇸</span> United States</div></td>
+          <td>01/06/2026</td>
+          <td>15/06/2026</td>
+          <td><span class="action-tag">CoC</span></td>
+          <td><span class="compliance completed"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="7" fill="currentColor" stroke="none"/><path d="M5 8l2 2 4-4" stroke="white"/></svg>Completed</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇳🇴</span> Norway</div></td>
+          <td><div class="country-cell"><span class="flag">🇦🇹</span> Austria</div></td>
+          <td>15/04/2026</td>
+          <td>22/04/2026</td>
+          <td><span class="action-tag">Payroll</span></td>
+          <td><span class="compliance attention"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1z" fill="currentColor"/><path d="M8 6v3" stroke="white" stroke-width="1.5"/><circle cx="8" cy="11" r="0.6" fill="white"/></svg>Attention</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇩🇪</span> Germany</div></td>
+          <td><div class="country-cell"><span class="flag">🇬🇧</span> United Kingdom</div></td>
+          <td>15/05/2026</td>
+          <td>22/05/2026</td>
+          <td><span class="action-tag">Visa</span></td>
+          <td><span class="compliance attention"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l7 13H1z" fill="currentColor"/><path d="M8 6v3" stroke="white" stroke-width="1.5"/><circle cx="8" cy="11" r="0.6" fill="white"/></svg>Attention</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="employee-cell"><span class="name">Salma Sadek</span></td>
+          <td><div class="country-cell"><span class="flag">🇩🇪</span> Germany</div></td>
+          <td><div class="country-cell"><span class="flag">🇸🇪</span> Sweden</div></td>
+          <td>19/04/2026</td>
+          <td>26/04/2026</td>
+          <td><span class="action-tag">PWN</span><span class="action-tag">Training</span></td>
+          <td><span class="compliance completed"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="7" fill="currentColor" stroke="none"/><path d="M5 8l2 2 4-4" stroke="white"/></svg>Completed</span></td>
+          <td><button class="row-more"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<script>
+  const btn = document.getElementById('requestTripBtn');
+  const menu = document.getElementById('requestTripMenu');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target) && e.target !== btn) menu.classList.remove('open');
+  });
+</script>
+</body>
+</html>
